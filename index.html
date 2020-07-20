@@ -96,6 +96,88 @@
     
     
     <article
+  id="post-FAST-Translation"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/07/20/FAST-Translation/"
+    >FAST角点检测方法(Wikipedia翻译)</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/07/20/FAST-Translation/" class="article-date">
+  <time datetime="2020-07-20T08:21:55.000Z" itemprop="datePublished">2020-07-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%9F%A5%E8%AF%86/">知识</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="加速分段特征点测试"><a href="#加速分段特征点测试" class="headerlink" title="加速分段特征点测试"></a>加速分段特征点测试</h1><p>加速分段特征点检测(FAST)是一种角点检测方法，在很多计算机视觉的课题当中，它可以用于提取特征点并追踪(track)和比对(map)物体。FAST角点检测最初由Edward Rosten和Tom Drummond开发，并于2006年正式发布。FAST角点检测的一大最有前途的优点在于它的计算效率。正如FAST的名字一样，它确实比许多众所周知的特征提取方法，诸如使用高斯差分(DoG)的SIFT检测、SUSAN检测和Harris检测，要更加快速(faster)。更加强大的是，如果结合机器学习技术，FAST可以在计算时间和资源上达到很高的性能(Superior Performance)。FAST角点检测的高速性能(high-speed performance)使得它非常适合应用在实时视频的处理上。</p>
+<h2 id="分段测试检测"><a href="#分段测试检测" class="headerlink" title="分段测试检测"></a>分段测试检测</h2><p>FAST角点检测使用了一个16像素的圆(半径为3的Bresenham圆)来确定(classify)选中的点<strong>p</strong>是否确实是一个角点。圆上的每一个像素都以顺时针编号为1至16。如果圆上一组<strong>N</strong>个相邻的像素点的亮度(intensity)全部都比选中点<strong>p</strong>的亮度(记为<strong>I<sub>p</sub></strong>)要高出或低出阈值<strong>t</strong>，则点<strong>p</strong>被归类为一个角点。该条件可以写成：</p>
+<ul>
+<li><p>条件一：一组<strong>N</strong>个相邻的像素点的集合记为<strong>S</strong>，$\forall x \in S$，<strong>x</strong>的亮度&gt;<strong>I<sub>p</sub></strong>+阈值<strong>t</strong>，或$I_{x} &gt; I_{p}+t$</p>
+</li>
+<li><p>条件二：一组<strong>N</strong>个相邻的像素点的集合记为<strong>S</strong>，$\forall x \in S$，<strong>x</strong>的亮度&lt;<strong>I<sub>p</sub></strong>-阈值<strong>t</strong>，或$I_{x} &lt; I_{p}-t$</p>
+<p>在满足其中任意一个条件时，选中点<strong>p</strong>可以被归类为一个角点。在选择相邻像素点数量<strong>N</strong>与阈值<strong>t</strong>的数值上需要进行权衡。既不应该检测出过多的角点，又不应该为了达成高准确度(high performance)而牺牲计算效率。在没有机器学习的优化下，<strong>N</strong>的值一般取为12。另一个高速检测方法(A high-speed test method)可以用于排除不是角点的点。</p>
+</li>
+</ul>
+<h2 id="高速检测"><a href="#高速检测" class="headerlink" title="高速检测"></a>高速检测</h2><p>用于排除非角点的高速检测是通过对编号为1,9,5,13的4个对照(example)像素点进行检测来实现的。因为对于角点来说，应该至少有全都比它更亮或更暗的12个连续点，所以在这4个对照像素点中，至少应该有3个像素点全都比选中点更亮或更暗。首先对点1和点9进行检测，如果它们的亮度都处于阈值范围[<strong>I<sub>p</sub></strong>-<strong>t</strong>,<strong>I<sub>p</sub></strong>+<strong>t</strong>]内，则选中点<strong>p</strong>不是角点，否则，对点5和点13进行进一步的检测，确认是否其中三个点全都比选中点更亮或更暗。如果有三个点确实满足条件，则对剩下的全部点进行检测来确定选中点的最终类型。根据发明者在他的第一篇论文中所说，对于一个角点平均需要检测3.8个像素点。与每个角点8.5个像素点(指分段测试检测？)相比，3.8是能够高度改善性能的巨大降低。</p>
+<p>然而，这个检测方法有着几个缺点：</p>
+<ol>
+<li>高速检测不能被很好地推广到<strong>N&lt;12</strong>的情况，如果<strong>N&lt;12</strong>，角点<strong>p</strong>的4个对照像素点中可能只存在两个全都比<strong>p</strong>更亮或更暗。</li>
+<li>检测的效率取决于检测点的选取与顺序。但是不太可能结合角点的分布选出最优的检测点。(it is unlikely that the chosen pixels are optimal which take concerns about the distribution of corner appearances.)</li>
+<li>检测到的多个特征点彼此相邻。(Multiple features are detected adjacent to one another.)</li>
+</ol>
+<p>(2020.7.20 16:20 by Jzjerry)</p>
+<h2 id="机器学习优化"><a href="#机器学习优化" class="headerlink" title="机器学习优化"></a>机器学习优化</h2><h2 id="非最大抑制"><a href="#非最大抑制" class="headerlink" title="非最大抑制"></a>非最大抑制</h2><h2 id="FAST-ER-更强的重复性"><a href="#FAST-ER-更强的重复性" class="headerlink" title="FAST-ER:更强的重复性"></a>FAST-ER:更强的重复性</h2><h2 id="与其他检测的对比"><a href="#与其他检测的对比" class="headerlink" title="与其他检测的对比"></a>与其他检测的对比</h2><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
+<li>Rosten, Edward; Drummond, Tom (2006). “Machine Learning for High-speed Corner Detection”. <em>Computer Vision – ECCV 2006</em>. Lecture Notes in Computer Science. <strong>3951</strong>. pp. 430–443. <a href="https://en.wikipedia.org/wiki/Doi_(identifier)" target="_blank" rel="noopener">doi</a>:<a href="https://doi.org/10.1007%2F11744023_34" target="_blank" rel="noopener">10.1007/11744023_34</a>. <a href="https://en.wikipedia.org/wiki/ISBN_(identifier)" target="_blank" rel="noopener">ISBN</a> <a href="https://en.wikipedia.org/wiki/Special:BookSources/978-3-540-33832-1" target="_blank" rel="noopener">978-3-540-33832-1</a>. <a href="https://en.wikipedia.org/wiki/S2CID_(identifier)" target="_blank" rel="noopener">S2CID</a> <a href="https://api.semanticscholar.org/CorpusID:1388140" target="_blank" rel="noopener">1388140</a>.</li>
+<li>Edward Rosten, <a href="http://edwardrosten.com/work/rosten_2005_annotations.pdf" target="_blank" rel="noopener">Real-time Video Annotations for Augmented Reality</a></li>
+<li>Edward Rosten, <a href="http://lanl.arxiv.org/pdf/0810.2434" target="_blank" rel="noopener">FASTER and better: A machine learning approach to corner detection</a></li>
+</ol>
+<h2 id="文献"><a href="#文献" class="headerlink" title="文献"></a>文献</h2><ul>
+<li><p>Rosten, Edward; Tom Drummond (2005). <a href="http://edwardrosten.com/work/rosten_2005_tracking.pdf" target="_blank" rel="noopener"><em>Fusing points and lines for high performance tracking</em></a> (PDF). <em>IEEE International Conference on Computer Vision</em>. <strong>2</strong>. pp. 1508–1511. <a href="https://en.wikipedia.org/wiki/CiteSeerX_(identifier)" target="_blank" rel="noopener">CiteSeerX</a> <a href="https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.60.4715" target="_blank" rel="noopener">10.1.1.60.4715</a>. <a href="https://en.wikipedia.org/wiki/Doi_(identifier)" target="_blank" rel="noopener">doi</a>:<a href="https://doi.org/10.1109%2FICCV.2005.104" target="_blank" rel="noopener">10.1109/ICCV.2005.104</a>. <a href="https://en.wikipedia.org/wiki/ISBN_(identifier)" target="_blank" rel="noopener">ISBN</a> <a href="https://en.wikipedia.org/wiki/Special:BookSources/978-0-7695-2334-7" target="_blank" rel="noopener">978-0-7695-2334-7</a>.</p>
+</li>
+<li><p>Rosten, Edward; Reid Porter; Tom Drummond (2010). “FASTER and better: A machine learning approach to corner detection”. <em>IEEE Transactions on Pattern Analysis and Machine Intelligence</em>. <strong>32</strong> (1): 105–119. <a href="https://en.wikipedia.org/wiki/ArXiv_(identifier)" target="_blank" rel="noopener">arXiv</a>:<a href="https://arxiv.org/abs/0810.2434" target="_blank" rel="noopener">0810.2434</a>. <a href="https://en.wikipedia.org/wiki/Doi_(identifier)" target="_blank" rel="noopener">doi</a>:<a href="https://doi.org/10.1109%2FTPAMI.2008.275" target="_blank" rel="noopener">10.1109/TPAMI.2008.275</a>. <a href="https://en.wikipedia.org/wiki/PMID_(identifier)" target="_blank" rel="noopener">PMID</a> <a href="https://pubmed.ncbi.nlm.nih.gov/19926902" target="_blank" rel="noopener">19926902</a>.</p>
+</li>
+<li><p>Rosten, Edward; Tom Drummond (2006). <a href="http://edwardrosten.com/work/rosten_2006_machine.pdf" target="_blank" rel="noopener"><em>Machine learning for high-speed corner detection</em></a> (PDF). <em>European Conference on Computer Vision</em>. Lecture Notes in Computer Science. <strong>1</strong>. pp. 430–443. <a href="https://en.wikipedia.org/wiki/CiteSeerX_(identifier)" target="_blank" rel="noopener">CiteSeerX</a> <a href="https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.64.8513" target="_blank" rel="noopener">10.1.1.64.8513</a>. <a href="https://en.wikipedia.org/wiki/Doi_(identifier)" target="_blank" rel="noopener">doi</a>:<a href="https://doi.org/10.1007%2F11744023_34" target="_blank" rel="noopener">10.1007/11744023_34</a>. <a href="https://en.wikipedia.org/wiki/ISBN_(identifier)" target="_blank" rel="noopener">ISBN</a> <a href="https://en.wikipedia.org/wiki/Special:BookSources/978-3-540-33832-1" target="_blank" rel="noopener">978-3-540-33832-1</a>.</p>
+</li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Computer-Vision/" rel="tag">Computer Vision</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-Try-On-Robocup2D"
   class="article article-type-post"
   itemscope
@@ -506,6 +588,30 @@
 </script>
 
 <!-- MathJax -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
 
 <!-- Katex -->
 

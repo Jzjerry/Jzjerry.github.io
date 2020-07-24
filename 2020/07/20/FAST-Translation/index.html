@@ -108,7 +108,7 @@
 </li>
 <li><p>条件二：一组<strong>N</strong>个相邻的像素点的集合记为<strong>S</strong>，$\forall x \in S$，<strong>x</strong>的亮度&lt;<strong>I<sub>p</sub></strong>-阈值<strong>t</strong>，或$I_{x} &lt; I_{p}-t$</p>
 <p>在满足其中任意一个条件时，选中点<strong>p</strong>可以被归类为一个角点。在选择相邻像素点数量<strong>N</strong>与阈值<strong>t</strong>的数值上需要进行权衡。既不应该检测出过多的角点，又不应该为了达成高准确度(high performance)而牺牲计算效率。在没有机器学习的优化下，<strong>N</strong>的值一般取为12。一个高速检测方法(A high-speed test method)可以用于排除不是角点的点。</p>
-<p><img src="images%5C330px-FAST_Corner_Detector.jpg" alt="330px-FAST_Corner_Detector"></p>
+<p><img src="https://i.loli.net/2020/07/24/vNZriPEDVKm8hob.jpg" alt="330px-FAST_Corner_Detector.jpg"></p>
 </li>
 </ul>
 <h2 id="高速检测"><a href="#高速检测" class="headerlink" title="高速检测"></a>高速检测</h2><p>用于排除非角点的高速检测是通过对编号为1,9,5,13的4个对照(example)像素点进行检测来实现的。因为对于角点来说，应该至少有全都比它更亮或更暗的12个连续点，所以在这4个对照像素点中，至少应该有3个像素点全都比选中点更亮或更暗。首先对点1和点9进行检测，如果它们的亮度都处于阈值范围[<strong>I<sub>p</sub></strong>-<strong>t</strong>,<strong>I<sub>p</sub></strong>+<strong>t</strong>]内，则选中点<strong>p</strong>不是角点，否则，对点5和点13进行进一步的检测，确认是否其中三个点全都比选中点更亮或更暗。如果有三个点确实满足条件，则对剩下的全部点进行检测来确定选中点的最终类型。根据发明者在他的第一篇论文中所说<sup>[<a href="#ref">2</a>]</sup>，对于一个角点平均需要检测3.8个像素点。与每个角点8.5个像素点(指分段测试检测？)相比，3.8是能够高度改善性能的巨大降低。</p>

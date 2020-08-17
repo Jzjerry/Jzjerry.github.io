@@ -150,10 +150,10 @@
 <p>为了选出每个能够的到最大信息增益的<strong>x</strong>点，对每个子集进行一个递归过程。例如，首先选出具有最多的信息的，用于分割<strong>P</strong>为<strong>P<sub>d</sub>,P<sub>s</sub>,P<sub>b</sub></strong>的<strong>x</strong>点；然后对每个子集<strong>P<sub>d</sub>,P<sub>s</sub>,P<sub>b</sub></strong>，选出能产生最大信息增益的<strong>y</strong>点（可能和<strong>x</strong>点为同一个）。这个递归过程在熵为0的时候结束，这时子集中所有像素不是角点就是非角点。</p>
 <p>生成的决策树可以转换为程序代码，例如C与C++代码，只需要一串嵌套的if-else语句就可以实现。如果想要得到最优化，可以使用按配置优化（Profile-guided Optimization）编译代码。编译后的代码可以用于对其它图像进行角点检测。</p>
 <p>值得注意的是，使用决策树算法检测的角点会与分段测试检测得到的角点有微小的差异。这是因为决策树模型是基于训练数据的，并不能覆盖所有可能的角点。</p>
-<h2 id="非最大抑制"><a href="#非最大抑制" class="headerlink" title="非最大抑制"></a>非最大抑制</h2><p>“由于分段检测并不能计算出角点响应函数，非最大抑制不能直接用于产生特征。”然而，如果<strong>N</strong>是固定的，对于每一个像素点<strong>p</strong>，角点强度(corner strength)可定义为使<strong>p</strong>成为角点的阈值<strong>t</strong>的最大值。因此，有两种方法可以用于计算角点强度：</p>
+<h2 id="非极大值抑制"><a href="#非极大值抑制" class="headerlink" title="非极大值抑制"></a>非极大值抑制</h2><p>“由于分段检测并不能计算出角点响应函数，非极大值抑制不能直接用于产生特征。”然而，如果<strong>N</strong>是固定的，对于每一个像素点<strong>p</strong>，角点强度(corner strength)可定义为使<strong>p</strong>成为角点的阈值<strong>t</strong>的极大值。因此，有两种方法可以用于计算角点强度：</p>
 <ul>
-<li>二分搜索算法可以被用于找到使<strong>p</strong>点仍是一个角点的<strong>t</strong>的最大值值。每次都会为决策树算法设定一个不同的<strong>t</strong>值。当算法找到了最大的<strong>t</strong>值时，就可以将该值作为角点强度。</li>
-<li>另外一种方法是使用迭代法(iteration scheme)，每次使<strong>t</strong>值增加一个能使<strong>p</strong>通过角点检测的最小值。</li>
+<li>二分搜索算法可以被用于找到使<strong>p</strong>点仍是一个角点的<strong>t</strong>的极大值。每次都会为决策树算法设定一个不同的<strong>t</strong>值。当算法找到了最大的<strong>t</strong>值时，就可以将该值作为角点强度。</li>
+<li>另外一种方法是使用迭代法(iteration scheme)，每次使<strong>t</strong>值增加一个能使<strong>p</strong>通过角点检测的极小值。</li>
 </ul>
 <h2 id="FAST-ER-更强的重复性"><a href="#FAST-ER-更强的重复性" class="headerlink" title="FAST-ER:更强的重复性"></a>FAST-ER:更强的重复性</h2><p>FAST-ER检测是一种使用元启发式算法的FAST检测优化算法，其使用元启发式算法是模拟退火算法。在最优化之后，决策树的结构将会最优化，且适合于检测重复率高的点。但是模拟退火算法作为一种元启发式算法，每次会生成不同的最优决策树。因此，最好有效地进行大量的迭代，来寻找接近实际最优的方案。根据Rosten所说，在3GHz主频的Pentium4上重复100遍10万次的FAST迭代优化需要大约200个小时。</p>
 <h2 id="与其他检测的对比"><a href="#与其他检测的对比" class="headerlink" title="与其他检测的对比"></a>与其他检测的对比</h2><p>在Rosten的研究中<sup>[<a href="#ref">3</a>]</sup>，他对不同数据集下的FAST和FAST-ER检测进行了评价，并与DoG，Harris，Harris-Laplace，Shi-Tomasi和SUSAN角点检测进行了比较。</p>
@@ -239,7 +239,7 @@
 </tr>
 <tr>
 <td align="center">DOG</td>
-<td align="center">DOG</td>
+<td align="center">1275.59</td>
 </tr>
 <tr>
 <td align="center">Shi &amp; Tomasi</td>
@@ -322,6 +322,7 @@
 </blockquote>
 <blockquote>
 <p>2020.7.24 14:03 by Jzjerry 粗译完成</p>
+<p>2020.8.17 18:44 by Jzjerry 修改一处名词翻译与一处数据空缺</p>
 </blockquote>
 </li>
 </ul>

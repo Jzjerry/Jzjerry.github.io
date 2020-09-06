@@ -9,7 +9,7 @@
     
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    OpenCV For Python Ep.1 Intro |  Through the Gate of Silver Key
+    OpenCV For Python Ep.2 HelloWorld |  Through the Gate of Silver Key
   </title>
   <meta name="generator" content="hexo-theme-ayer">
   
@@ -44,7 +44,7 @@
     <main class="content on">
       <section class="outer">
   <article
-  id="post-OpenCV-Intro"
+  id="post-OpenCv-Intro2"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -55,15 +55,15 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  OpenCV For Python Ep.1 Intro
+  OpenCV For Python Ep.2 HelloWorld
 </h1>
  
 
     </header>
      
     <div class="article-meta">
-      <a href="/2020/08/03/OpenCV-Intro/" class="article-date">
-  <time datetime="2020-08-03T07:31:54.000Z" itemprop="datePublished">2020-08-03</time>
+      <a href="/2020/09/06/OpenCv-Intro2/" class="article-date">
+  <time datetime="2020-09-06T10:16:14.000Z" itemprop="datePublished">2020-09-06</time>
 </a> 
   <div class="article-category">
     <a class="article-category-link" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a>
@@ -74,7 +74,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">1.4k</span>
+            <span class="post-count">1.1k</span>
         </span>
     </span>
 
@@ -83,7 +83,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">5 min</span>
+            <span class="post-count">4 min</span>
         </span>
     </span>
 </div>
@@ -98,51 +98,45 @@
   
     <div class="article-entry" itemprop="articleBody">
        
-  <h1 id="Python-OpenCV-Ep-1-入门"><a href="#Python-OpenCV-Ep-1-入门" class="headerlink" title="Python OpenCV Ep.1 入门"></a>Python OpenCV Ep.1 入门</h1><p>OpenCV是一个十分强大的计算机视觉开源平台，其不仅拥有大量现成的算法，还支持包含Python、C++在内的多种语言。对于刚入门计算机视觉的人来说，Python+OpenCV的学习环境是十分友好的。</p>
-<h2 id="1-环境配置"><a href="#1-环境配置" class="headerlink" title="1.环境配置"></a>1.环境配置</h2><p>首先需要确认已经安装<code>numpy</code>库，该库为OpenCV的前置要求，安装方法可以与下文一样地使用<code>pip</code>。</p>
-<p>我们可以使用<code>pip</code>直接安装OpenCV：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install opencv-python</span><br></pre></td></tr></table></figure>
+  <h1 id="Python-OpenCV-Ep-2-初步应用-基于内置模型"><a href="#Python-OpenCV-Ep-2-初步应用-基于内置模型" class="headerlink" title="Python OpenCV Ep.2 初步应用(基于内置模型)"></a>Python OpenCV Ep.2 初步应用(基于内置模型)</h1><p><a href="https://jzjerry.github.io/2020/08/03/OpenCV-Intro/">查看上一期</a></p>
+<p>在配置好Python环境下的OpenCV之后，我们可以了解到OpenCV已经内置了不少很完善的计算机视觉算法和例程，而在OpenCV的<a href="https://github.com/opencv/opencv" target="_blank" rel="noopener">GitHub</a>上也有很多可用的模型。在本文中，我们将把其中的一些算法与基本例程投入到使用当中，完成一个比较基础的计算机视觉程序——人脸与人脸关键点检测。</p>
+<h2 id="1-前置知识"><a href="#1-前置知识" class="headerlink" title="1.前置知识"></a>1.前置知识</h2><p><strong>①cvtColor(色彩空间转换)</strong></p>
+<p><strong>②Drawing Function(OpenCV绘制函数)</strong></p>
+<p><strong>③Cascade Classifier(级联分类器)</strong></p>
+<p><strong>④Haar Features &amp; LBF Features(Haar特征与LBF特征)</strong></p>
+<p><strong>etc…</strong></p>
+<p>这些知识将逐步在之后(<del>也许是很久之后</del>)的其他博客中补充。</p>
+<h2 id="2-准备工作"><a href="#2-准备工作" class="headerlink" title="2.准备工作"></a>2.准备工作</h2><p>① 读入一个视频、摄像头或是单张的图像自然是我们程序中的第一步。这一部分内容已经在上一期中做了十分详尽的介绍，在本文中就不再重复了。</p>
+<p>② 之后，我们需要提前准备好两个在本次的程序中需要用到的模型，分别是：</p>
+<ul>
+<li><strong>haarcascade_frontalface_alt2</strong></li>
+<li><strong>lbfmodel</strong></li>
+</ul>
+<p>第一个模型的可以在<a href="https://github.com/opencv/opencv/tree/master/data/haarcascades" target="_blank" rel="noopener">OpenCV的Github</a>上找到。</p>
+<p>第二个模型的下载链接将会在之后进行补充。(<del>因为我暂时找不到了</del>)</p>
+<h2 id="3-程序代码"><a href="#3-程序代码" class="headerlink" title="3.程序代码"></a>3.程序代码</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> py</span><br><span class="line"><span class="keyword">import</span> cv2 <span class="keyword">as</span> cv</span><br><span class="line"></span><br><span class="line">cap = cv.VideoCapture(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># load models</span></span><br><span class="line">cascade = cv.CascadeClassifier(<span class="string">"haarcascade_frontalface_alt2.xml"</span>)</span><br><span class="line"><span class="comment"># use this one if you are cat</span></span><br><span class="line"><span class="comment"># cascade = cv.CascadeClassifier("haarcascade_frontalcatface_extended.xml")</span></span><br><span class="line">facemark = cv.face.createFacemarkLBF()</span><br><span class="line">facemark.loadModel(<span class="string">"lbfmodel.yaml"</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> cap.isOpened():</span><br><span class="line">    print(<span class="string">"Cannot open camera"</span>)</span><br><span class="line">    exit()</span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    <span class="comment"># Capture frame-by-frame</span></span><br><span class="line">    ret, frame = cap.read()</span><br><span class="line">    <span class="comment"># if frame is read correctly ret is True</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> ret:</span><br><span class="line">        print(<span class="string">"Can't receive frame (stream end?). Exiting ..."</span>)</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">    <span class="comment"># flip the frame</span></span><br><span class="line">    frame = cv.flip(frame,<span class="number">1</span>,dst = <span class="literal">None</span>)</span><br><span class="line">    gray = cv.cvtColor( frame , cv.COLOR_BGR2GRAY )</span><br><span class="line"></span><br><span class="line">    <span class="comment"># run landmark</span></span><br><span class="line">    faces = cascade.detectMultiScale( gray , minSize = (<span class="number">30</span>,<span class="number">30</span>) )</span><br><span class="line">    <span class="keyword">if</span> len(faces)!=<span class="number">0</span>:</span><br><span class="line">        ok , landmarks = facemark.fit( gray , faces )</span><br><span class="line">        <span class="keyword">if</span> ok:</span><br><span class="line">            <span class="comment"># show result in points</span></span><br><span class="line">            <span class="keyword">for</span> i <span class="keyword">in</span> range(len(landmarks[<span class="number">0</span>][<span class="number">0</span>])):</span><br><span class="line">                cv.circle( frame , tuple(landmarks[<span class="number">0</span>][<span class="number">0</span>][i]) , <span class="number">2</span> , (<span class="number">255</span>,<span class="number">0</span>,<span class="number">0</span>) , <span class="number">-1</span> )</span><br><span class="line">            <span class="keyword">for</span> j <span class="keyword">in</span> range(len(faces)):</span><br><span class="line">                cv.rectangle( frame , (faces[j][<span class="number">0</span>],faces[j][<span class="number">1</span>]) , (faces[j][<span class="number">0</span>]+faces[j][<span class="number">2</span>],faces[j][<span class="number">1</span>]+faces[j][<span class="number">3</span>]) , (<span class="number">255</span>,<span class="number">255</span>,<span class="number">255</span>) , <span class="number">3</span> )</span><br><span class="line">    <span class="comment"># Interrupt on key</span></span><br><span class="line">    cv.imshow( <span class="string">"Display"</span> , frame )</span><br><span class="line">    <span class="keyword">if</span> cv.waitKey(<span class="number">1</span>) == ord(<span class="string">'q'</span>):</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line"><span class="comment"># When everything done, release the capture</span></span><br><span class="line">cap.release()</span><br><span class="line">cv.destroyAllWindows()</span><br></pre></td></tr></table></figure>
 
-<p>或者可以选择安装包含了额外模型的contri版本：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install opencv-contirb-python</span><br></pre></td></tr></table></figure>
+<p>在本程序中我们使用的是摄像头捕捉来完成实时的人脸识别与关键点标记，因此我们首先建立一个<code>VideoCapture()</code>。</p>
+<p>之后，就是使用CV2库的<code>CascadeClassifier</code>来载入我们所下载的Haar特征分类器模型。</p>
+<p>同样地，我们建立新的LBF Facemark，并使用<code>face.loadModel()</code>来载入LBF特征模型。</p>
+<p>在初始化工作完成后，就可以开始逐帧显示摄像头捕获图像，并使用模型对图像进行识别。为了处理图像，我们必须使用<code>cvtColor()</code>将图像的颜色空间从默认的BGR空间转换到GRAY灰度空间。先运行建立好的<code>CascadeClassifier</code>，从返回的数据中分别可以提取出人脸识别矩形的信息。然后，我们在这个矩形的范围内运行建立的<code>Facemark</code>，在人脸框内找出关键点。</p>
+<p>为了用圆形绘制函数画出关键点，我们必须用一个<code>tuple</code>变量作为圆心的坐标点，而这一坐标点的信息实际是在返回数据<code>landmarks[0][0][i]</code>内的，因此我们利用循环来遍历<code>landmarks[0][0]</code>。</p>
+<p>对于人脸框的绘制，<code>CascadeClassifier</code>识别后返回的矩形数据是以左上角坐标<code>(x,y)</code>和宽度高度<code>(w,h)</code>四个数据的形式存储的。而矩形绘制函数要求提供的是左上角和右下角的坐标点位置，只需要做个加法转换一下就行了。</p>
+<p>运行之后的效果如下：</p>
+<p><img src="https://i.loli.net/2020/09/06/37Vst8JN2olMHph.jpg" alt="layout.jpg"></p>
+<img src="https://i.loli.net/2020/09/06/ruXElvHgUxK1DPV.jpg" alt="layout2.jpg" style="zoom: 67%;" />
 
-<p>鉴于<code>pip</code>默认的下载源下载速度较慢，推荐使用pypi的清华镜像或豆瓣镜像：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install &lt;package name&gt; -i https:&#x2F;&#x2F;pypi.douban.com&#x2F;simple&#x2F;</span><br></pre></td></tr></table></figure>
+<p>模型很成功地识别了田所浩二先辈<del>证明了野兽先辈人类说</del>。</p>
+<img src="https://i.loli.net/2020/09/06/NGVtq8IBmCfb2lQ.jpg" alt="layout4.jpg" style="zoom:50%;" />
 
-<p>再或者，可以直接去pypi下载对应的whl文件，再使用pip安装，但是速度可能与第一种差不多。</p>
-<p>安装完成后，我们只需要在建立Python程序时加入：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> cv2</span><br></pre></td></tr></table></figure>
+<p>对于纸片人没有做出反映，说明其准确度还是很可观的。</p>
+<img src="https://i.loli.net/2020/09/06/HpStUdOqRMA52LG.jpg" alt="layout3.jpg" style="zoom: 80%;" />
 
-<p>即可，其他多样化地<code>import</code>方式可以自行决定。</p>
-<h2 id="2-初步使用"><a href="#2-初步使用" class="headerlink" title="2.初步使用"></a>2.初步使用</h2><p>作为计算机视觉库，不难想到我们第一步要做的就是获取图像处理的对象：图片和视频。</p>
-<h3 id="读入图像"><a href="#读入图像" class="headerlink" title="读入图像"></a>读入图像</h3><p>在读入图像时，我们常用到的函数有：<code>imread()</code>和<code>imshow()</code>。</p>
-<p>我们写一个简单的程序来读入和显示一张图像：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> cv2</span><br><span class="line"></span><br><span class="line">img = cv2.imread(<span class="string">"&lt;Pic&gt;"</span>)		<span class="comment"># &lt;Pic&gt;为一个图像的路径</span></span><br><span class="line">cv2.imshow(<span class="string">"&lt;Window Name&gt;"</span>,img) <span class="comment"># &lt;Window Name&gt;为窗口名称</span></span><br><span class="line">cv2.waitKey(<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
-
-<p>只要设置好图像路径和窗口名，在确保路径正确的情况下，运行程序之后就可以得到一个图像显示窗口。但是运行后窗口只是一闪而过，要让窗口持续显示，则可以使用<code>waitKey()</code>函数。这样窗口就可以持续显示，并在按下任意按键后退出。</p>
-<h3 id="写入图像"><a href="#写入图像" class="headerlink" title="写入图像"></a>写入图像</h3><p>如果要保存一张图像，我们需要用到<code>imwrite()</code>函数。</p>
-<p>以前文程序为例，我们可以简单的实现把一张<code>.png</code>图片保存为<code>.jpg</code>图片的操作：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> cv2</span><br><span class="line"></span><br><span class="line">img = cv2.imread(<span class="string">"&lt;Pic(png)&gt;"</span>)		<span class="comment"># &lt;Pic(png)&gt;为一个png图像的路径</span></span><br><span class="line">cv2.imshow(<span class="string">"&lt;Window Name&gt;"</span>,img) 	<span class="comment"># &lt;Window Name&gt;为窗口名称</span></span><br><span class="line">key = cv2.waitKey(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> key == ord(<span class="string">"s"</span>):</span><br><span class="line">	cv2.imwrite(<span class="string">"&lt;Pic(jpg)&gt;"</span>,img)	<span class="comment">#&lt;Pic(jpg)&gt;为保存对象图片的位置路径</span></span><br></pre></td></tr></table></figure>
-
-<p>我们对按下的按键进行判断，如果按下了<code>s</code>键，就保存该图片到一个新的路径，例如<code>D:\\pic.jpg</code>。</p>
-<p>运行之后，如果我们以按下<code>s</code>键来关闭窗口，就可以保存下图像了。强烈建议使用绝对路径来作为保存路径，以免将图片存到Python运行路径或其他路径下。（后文存储视频同理）</p>
-<h3 id="读取摄像头图像"><a href="#读取摄像头图像" class="headerlink" title="读取摄像头图像"></a>读取摄像头图像</h3><p>为了获取摄像头图像，我们需要使用<code>VideoCapture()</code>函数来创建一个视频捕获对象。</p>
-<p>显示摄像头的程序如下：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> cv2 <span class="keyword">as</span> cv</span><br><span class="line">cap = cv.VideoCapture(<span class="number">0</span>)		<span class="comment">#parameter is the number for your camera devices or 								#a video path.</span></span><br><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> cap.isOpened():</span><br><span class="line">    print(<span class="string">"Cannot open camera"</span>)</span><br><span class="line">    exit()</span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    <span class="comment"># Capture frame-by-frame</span></span><br><span class="line">    ret, frame = cap.read()</span><br><span class="line">    <span class="comment"># if frame is read correctly ret is True</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> ret:</span><br><span class="line">        print(<span class="string">"Can't receive frame (stream end?). Exiting ..."</span>)</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">    <span class="comment"># Add flip on the frame</span></span><br><span class="line">    frame = cv.flip(frame,<span class="number">1</span>,dst = <span class="literal">None</span>)</span><br><span class="line">    <span class="comment"># Display the resulting frame</span></span><br><span class="line">    cv.imshow(<span class="string">'frame'</span>, frame)</span><br><span class="line">    <span class="keyword">if</span> cv.waitKey(<span class="number">1</span>) == ord(<span class="string">'q'</span>):</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line"><span class="comment"># When everything done, release the capture</span></span><br><span class="line">cap.release()</span><br><span class="line">cv.destroyAllWindows()</span><br></pre></td></tr></table></figure>
-
-<p>我们将<code>cap</code>作为一个视频捕获对象，先用判断语句确定是否打开了视频或摄像头，再进入一个循环，以逐帧的方式来获取摄像头信息。我们仍然可以用<code>imshow()</code>函数来在窗口中显示获得的图像信息，在循环中同样也用了<code>waitKey()</code>函数来作为退出循环的条件。</p>
-<p>比较特别的是在<code>imshow()</code>之前，我们做了比较简单图像处理工序——水平翻转。使用<code>flip()</code>函数，我们可以对图像进行各种类型的翻转，参数第二项的代号代表着不同的翻转方式，例如最典型的水平翻转为编号为<strong>1</strong>，垂直翻转编号为<strong>0</strong>。</p>
-<p>对于<code>VideoCapture()</code>中的摄像设备编号，建议结合具体电脑的设备信息使用，如果有虚拟摄像头（例如Facerig)或其他设备的话，可能会使实际的摄像头的编号向后改变。</p>
-<h3 id="存储视频"><a href="#存储视频" class="headerlink" title="存储视频"></a>存储视频</h3><p>存储视频时我们需要用到<code>VideoWriter_fourcc()</code>和<code>VideoWriter()</code>函数。</p>
-<p>其中第一个函数用于创建编码格式，第二个函数用于创建视频的具体参数。</p>
-<p>对于编码格式可以具体查阅<strong>FourCC</strong>相关的编码知识，具体编码与程序运行的平台有关，在Windows可以使用<strong>DIVX</strong>进行测试。</p>
-<p>对于视频参数，其格式为<code>(视频文件名,编码格式对象，每秒帧数，视频尺寸)</code>。</p>
-<p>从摄像头里获取影像，并存储为视频的程序如下：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> cv2 <span class="keyword">as</span> cv</span><br><span class="line">cap = cv.VideoCapture(<span class="number">0</span>)</span><br><span class="line"><span class="comment"># Define the codec and create VideoWriter object</span></span><br><span class="line">fourcc = cv.VideoWriter_fourcc(*<span class="string">'DIVX'</span>)</span><br><span class="line">out = cv.VideoWriter(<span class="string">'output.avi'</span>, fourcc, <span class="number">20.0</span>, (<span class="number">640</span>,  <span class="number">480</span>))</span><br><span class="line"><span class="keyword">while</span> cap.isOpened():</span><br><span class="line">    ret, frame = cap.read()</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> ret:</span><br><span class="line">        print(<span class="string">"Can't receive frame (stream end?). Exiting ..."</span>)</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">    frame = cv.flip(frame, <span class="number">0</span>)</span><br><span class="line">    <span class="comment"># write the flipped frame</span></span><br><span class="line">    out.write(frame)</span><br><span class="line">    cv.imshow(<span class="string">'frame'</span>, frame)</span><br><span class="line">    <span class="keyword">if</span> cv.waitKey(<span class="number">1</span>) == ord(<span class="string">'q'</span>):</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line"><span class="comment"># Release everything if job is finished</span></span><br><span class="line">cap.release()</span><br><span class="line">out.release()</span><br><span class="line">cv.destroyAllWindows()</span><br></pre></td></tr></table></figure>
-
-<p>这次我们使用了垂直翻转作为处理操作。在按下<code>q</code>键退出之后，就可以在路径内找到对应的视频文件了。</p>
-<h2 id="3-参考与扩展"><a href="#3-参考与扩展" class="headerlink" title="3.参考与扩展"></a>3.参考与扩展</h2><p><a href="https://docs.opencv.org/master/d6/d00/tutorial_py_root.html" target="_blank" rel="noopener">OpenCV-Python Tutorial</a>：官方教程地址</p>
-<p><a href="http://www.fourcc.org" target="_blank" rel="noopener">FourCC</a>：FourCC视频编码官方地址</p>
+<p>但是！却把露露的头饰误认成为了人脸，毕竟是比较老旧的模型，误识别的情况还是会存在的。</p>
+<p>我也尝试过按照关键点的设计手绘人脸，确实也被识别了。</p>
+<p>不过作为OpenCV的初步运用，确实只需要比较低的学习成本，上手非常容易。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://docs.opencv.org/master/db/d28/tutorial_cascade_classifier.html" target="_blank" rel="noopener">OpenCV:<strong>Object Detection (objdetect module)</strong></a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/35390012" target="_blank" rel="noopener">OpenCV实战：人脸关键点检测（FaceMark）—— Amusi</a></p>
  
       <!-- reward -->
       
@@ -209,7 +203,7 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://jzjerry.github.io/2020/08/03/OpenCV-Intro/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://jzjerry.github.io/2020/09/06/OpenCv-Intro2/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -222,19 +216,10 @@
    
   <nav class="article-nav">
     
-      <a href="/2020/09/06/OpenCv-Intro2/" class="article-nav-link">
-        <strong class="article-nav-caption">上一篇</strong>
-        <div class="article-nav-title">
-          
-            OpenCV For Python Ep.2 HelloWorld
-          
-        </div>
-      </a>
     
-    
-      <a href="/2020/07/20/FAST-Translation/" class="article-nav-link">
+      <a href="/2020/08/03/OpenCV-Intro/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">FAST角点检测方法(Wikipedia翻译)</div>
+        <div class="article-nav-title">OpenCV For Python Ep.1 Intro</div>
       </a>
     
   </nav>

@@ -111,7 +111,7 @@
 <p>绘制频域图像的方法在MATLAB相关教材、DSP相关教材和MATLAB官方帮助的示例中都有详细的解释，这里就不多提了。</p>
 <h3 id="3-FDA-Tool中的滤波器设计"><a href="#3-FDA-Tool中的滤波器设计" class="headerlink" title="3.FDA Tool中的滤波器设计"></a>3.FDA Tool中的滤波器设计</h3><p><em>Filter Design&amp;Analysis Tool</em> 是MATLAB提供的滤波器设计与分析工具，在这个工具中，我们可以选取各种类型的FIR滤波器与IIR滤波器进行设计，并输出滤波器参数或滤波器对象到工作区或保存为MATLAB函数。在本篇中我们主要尝试对录入或读入的音频信号进行处理，所以主要需要注意的是滤波器采样率的设定，该数值一定要和你创建的<code>audioplayer</code>或<code>audiorecoder</code>中的参数对应。</p>
 <p>具体的设计方法非常的自动化，只要调整好各项参数，如：滤波器的截止频率、通频带、增益分贝数、滤波器阶数等即可。</p>
-<p>如果在MATLAB内部操作的话，建议将设计好的滤波器导出为MATLAB的滤波器对象，而如果想要将滤波器运用在DSP、ARM<a href="基于ARM内核CMSIS-DSP库的滤波器的使用将会在之后的博客中有所涉及">^Detail</a></p>
+<p>如果在MATLAB内部操作的话，建议将设计好的滤波器导出为MATLAB的滤波器对象，而如果想要将滤波器运用在DSP、ARM</p>
 <p>器件，或其他编程语言的环境，可以将滤波器的一些系数作为数组导出。</p>
 <h3 id="4-音频对象的建立与播放"><a href="#4-音频对象的建立与播放" class="headerlink" title="4.音频对象的建立与播放"></a>4.音频对象的建立与播放</h3><p>将数据变化为可播放的对象十分简单，只需要利用<code>audioplayer(data,Fs)</code>去建立一个音频对象，并使用<code>play</code>去播放即可。</p>
 <p>其中<code>data</code>对应单纯的音频数据，<code>Fs</code>对应采样率。如果两者不对应的话，可能会出现快放或者慢放的效果，当然也可以利用这个来做一些特殊的的事情。</p>
@@ -133,7 +133,8 @@
 <p><a href="https://ww2.mathworks.cn/help/matlab/ref/fft.html" target="_blank" rel="noopener">快速傅里叶变换 - MATLAB &amp; Simulink - Mathworks 中国</a></p>
 <p><a href="https://ww2.mathworks.cn/help/signal/digital-and-analog-filters.html" target="_blank" rel="noopener">数字和模拟滤波器 - MATLAB &amp; Simulink - Mathworks 中国</a></p>
 <p><a href="https://blog.csdn.net/zxylv/article/details/102751960" target="_blank" rel="noopener">基于Matlab dsp工具箱 的实时音频采集及频谱显示 - Panda_1875的博客 - CSDN</a></p>
-<h2 id="P-S"><a href="#P-S" class="headerlink" title="P.S."></a>P.S.</h2> 
+<p>[^Detail]: </p>
+ 
       <!-- reward -->
       
       <div id="reward-btn">

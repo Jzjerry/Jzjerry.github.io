@@ -96,6 +96,93 @@
     
     
     <article
+  id="post-Matlab-Audio-FFT"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/11/12/Matlab-Audio-FFT/"
+    >Matlab-Audio-FFT</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/11/12/Matlab-Audio-FFT/" class="article-date">
+  <time datetime="2020-11-12T02:10:52.000Z" itemprop="datePublished">2020-11-12</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="MATLAB音频录制与时域频域显示"><a href="#MATLAB音频录制与时域频域显示" class="headerlink" title="MATLAB音频录制与时域频域显示"></a>MATLAB音频录制与时域频域显示</h1><p>MATLAB中有各种形式的数据输入函数，其强大而全面的数据读取功能让我们可以使用函数将视频数据、音频数据读取、存储到工作区内。对于视频和音频，进行数学操作和运算后的具体效果可以很直观地被感受到，例如将视频降采样、将音频通过滤波器等。</p>
+<p>本篇博客中，我们将使用MATLAB实现电脑音频输入，音频的频谱分析与音频的滤波。</p>
+<h2 id="基本内容"><a href="#基本内容" class="headerlink" title="基本内容"></a>基本内容</h2><h3 id="1-音频的录制与导入"><a href="#1-音频的录制与导入" class="headerlink" title="1.音频的录制与导入"></a>1.音频的录制与导入</h3><p>MATLAB对音频提供了两种对象——<code>audiorecorder</code>与<code>audioplayer</code>。</p>
+<p><code>audiorecoder</code>可以以特定的采样率、时长、分辨率、声道数等录制音频。在初始化好这个对象之后，使用<code>record</code>和<code>recordblocking</code>函数均可以开始录制音频。</p>
+<p><code>record</code>使用非阻滞模式——即调用后会在继续执行之后的代码的同时进行录音。而<code>recordblocking</code>使用阻滞模式，在调用后到录制完成前都不会向下继续运行代码。对于<code>record</code>函数，可以将<code>audiorecoder</code>对象作为参数使用<code>pause</code>和<code>stop</code>函数暂停和停止录音。</p>
+<p>而在录音完成后，可以使用<code>play</code>函数和<code>playblocking</code>函数来播放<code>audiorecoder</code>对象，其播放模式和<code>record</code>与<code>recordblocking</code>同理。</p>
+<p><code>audioplayer</code>基本参数和<code>audiorecoder</code>类似，但是并不具有录音的功能。</p>
+<p>想要导入具体的音频数据到工作区，可以使用<code>getaudiodata</code>函数，数据将会以向量的形式存储在工作区，可以使用<code>plot</code>函数绘制出来。</p>
+<h3 id="2-音频数据的处理"><a href="#2-音频数据的处理" class="headerlink" title="2.音频数据的处理"></a>2.音频数据的处理</h3><p>将音频数据导入到工作区后，处理的过程就和普通的数据别无二致了。可以使用<code>fft</code>函数进行快速傅里叶变化，查看频谱信息；可以使用函数运算，在时域和频域进行变换和运算；当然，也可以使用MATLAB内置的滤波器对象和滤波器函数<code>filter</code>，对数据进行滤波。</p>
+<p>在这里我们选取了<code>fft</code>和<code>filter</code>进行实验，先将原始音频数据的时域和频域绘出，经过滤波器后，再将处理过后的音频数据在时域和频域绘出。</p>
+<p>绘制频域图像的方法在MATLAB相关教材、DSP相关教材和MATLAB官方帮助的示例中都有详细的解释，这里就不多提了。</p>
+<h3 id="3-FDA-Tool中的滤波器设计"><a href="#3-FDA-Tool中的滤波器设计" class="headerlink" title="3.FDA Tool中的滤波器设计"></a>3.FDA Tool中的滤波器设计</h3><p><em>Filter Design&amp;Analysis Tool</em> 是MATLAB提供的滤波器设计与分析工具，在这个工具中，我们可以选取各种类型的FIR滤波器与IIR滤波器进行设计，并输出滤波器参数或滤波器对象到工作区或保存为MATLAB函数。在本篇中我们主要尝试对录入或读入的音频信号进行处理，所以主要需要注意的是滤波器采样率的设定，该数值一定要和你创建的<code>audioplayer</code>或<code>audiorecoder</code>中的参数对应。</p>
+<p>具体的设计方法非常的自动化，只要调整好各项参数，如：滤波器的截止频率、通频带、增益分贝数、滤波器阶数等即可。</p>
+<p>如果在MATLAB内部操作的话，建议将设计好的滤波器导出为MATLAB的滤波器对象，而如果想要将滤波器运用在DSP、ARM<a href="基于ARM内核CMSIS-DSP库的滤波器的使用将会在之后的博客中有所涉及">^Detail</a></p>
+<p>器件，或其他编程语言的环境，可以将滤波器的一些系数作为数组导出。</p>
+<h3 id="4-音频对象的建立与播放"><a href="#4-音频对象的建立与播放" class="headerlink" title="4.音频对象的建立与播放"></a>4.音频对象的建立与播放</h3><p>将数据变化为可播放的对象十分简单，只需要利用<code>audioplayer(data,Fs)</code>去建立一个音频对象，并使用<code>play</code>去播放即可。</p>
+<p>其中<code>data</code>对应单纯的音频数据，<code>Fs</code>对应采样率。如果两者不对应的话，可能会出现快放或者慢放的效果，当然也可以利用这个来做一些特殊的的事情。</p>
+<h2 id="程序流程"><a href="#程序流程" class="headerlink" title="程序流程"></a>程序流程</h2><p>在本篇的程序中，将按序执行以下几件事：</p>
+<ol>
+<li>以<code>44100</code>的采样率录制<code>5</code>秒的音频。</li>
+<li>绘制录入音频数据的波形与其快速傅里叶变换得到的频谱波形</li>
+<li>将音频数据经过一个滤波器对象的处理</li>
+<li>绘制处理后的音频数据的波形与其频谱波形</li>
+<li>播放处理后的音频</li>
+<li>播放原始音频</li>
+</ol>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">recObj = audiorecorder;</span><br><span class="line"></span><br><span class="line">Fs =  <span class="number">44100</span>; 	<span class="comment">% sample rate</span></span><br><span class="line">seconds = <span class="number">5</span>;	<span class="comment">% total length of audio</span></span><br><span class="line">nBits = <span class="number">16</span> ; 	</span><br><span class="line">nChannels = <span class="number">2</span> ; </span><br><span class="line">ID = <span class="number">-1</span>; 		<span class="comment">% default audio input device </span></span><br><span class="line">recObj = audiorecorder(Fs,nBits,nChannels,ID);</span><br><span class="line"></span><br><span class="line">total_samples = seconds*Fs;</span><br><span class="line"></span><br><span class="line"><span class="built_in">disp</span>(<span class="string">'Start speaking.'</span>)</span><br><span class="line">recordblocking(recObj,seconds);</span><br><span class="line"><span class="built_in">disp</span>(<span class="string">'End of Recording.'</span>);</span><br><span class="line"></span><br><span class="line">data = getaudiodata(recObj);</span><br><span class="line"></span><br><span class="line">subplot(<span class="number">2</span>,<span class="number">2</span>,<span class="number">1</span>);</span><br><span class="line"><span class="built_in">plot</span>(data);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">fftresult = fft(data);</span><br><span class="line"></span><br><span class="line">f = <span class="built_in">linspace</span>(<span class="number">0</span>,Fs/<span class="number">2</span>,total_samples/<span class="number">2</span>+<span class="number">1</span>);</span><br><span class="line">subplot(<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>);</span><br><span class="line"><span class="built_in">plot</span>(f,<span class="built_in">abs</span>(fftresult(<span class="number">1</span>:total_samples/<span class="number">2</span>+<span class="number">1</span>)))</span><br><span class="line"></span><br><span class="line">axis([<span class="number">0</span> <span class="number">5000</span> <span class="number">0</span> <span class="number">2000</span>])	<span class="comment">% axis of the plot should be tuned depending on data </span></span><br><span class="line"></span><br><span class="line"><span class="comment">% Design your Filter Object Hd here </span></span><br><span class="line"></span><br><span class="line">FIR_data = filter(Hd,data);</span><br><span class="line"></span><br><span class="line">t = <span class="built_in">linspace</span>(<span class="number">0</span>,seconds,total_samples);</span><br><span class="line">t = [t',t'];</span><br><span class="line"></span><br><span class="line">k = <span class="number">1</span>:total_samples;</span><br><span class="line"></span><br><span class="line">new_audio =  audioplayer(FIR_data, Fs);</span><br><span class="line"></span><br><span class="line">fftresult_alter = <span class="built_in">abs</span>(fft(FIR_data));</span><br><span class="line"></span><br><span class="line">subplot(<span class="number">2</span>,<span class="number">2</span>,<span class="number">3</span>);</span><br><span class="line"><span class="built_in">plot</span>(FIR_data);</span><br><span class="line"></span><br><span class="line">subplot(<span class="number">2</span>,<span class="number">2</span>,<span class="number">4</span>);</span><br><span class="line"><span class="built_in">plot</span>(f,fftresult_alter(<span class="number">1</span>:total_samples/<span class="number">2</span>+<span class="number">1</span>))</span><br><span class="line">axis([<span class="number">0</span> <span class="number">5000</span> <span class="number">0</span> <span class="number">2000</span>])	<span class="comment">% axis of the plot should be tuned depending on data </span></span><br><span class="line"></span><br><span class="line">playblocking(new_audio);</span><br><span class="line">play(recObj);</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>图片待补充——2020.11.15 by Jzjerry</p>
+</blockquote>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://ww2.mathworks.cn/help/matlab/audio-and-video.htm" target="_blank" rel="noopener">音频和视频 - MATLAB &amp; Simulink - Mathworks 中国</a></p>
+<p><a href="https://ww2.mathworks.cn/help/matlab/ref/fft.html" target="_blank" rel="noopener">快速傅里叶变换 - MATLAB &amp; Simulink - Mathworks 中国</a></p>
+<p><a href="https://ww2.mathworks.cn/help/signal/digital-and-analog-filters.html" target="_blank" rel="noopener">数字和模拟滤波器 - MATLAB &amp; Simulink - Mathworks 中国</a></p>
+<p><a href="https://blog.csdn.net/zxylv/article/details/102751960" target="_blank" rel="noopener">基于Matlab dsp工具箱 的实时音频采集及频谱显示 - Panda_1875的博客 - CSDN</a></p>
+<h2 id="P-S"><a href="#P-S" class="headerlink" title="P.S."></a>P.S.</h2> 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MATLAB/" rel="tag">MATLAB</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-OpenCv-Intro2"
   class="article article-type-post"
   itemscope

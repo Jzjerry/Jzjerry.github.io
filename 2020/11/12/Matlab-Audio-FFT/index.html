@@ -9,7 +9,7 @@
     
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    OpenCV For Python Ep.2 HelloWorld |  Through the Gate of Silver Key
+    Matlab-Audio-FFT |  Through the Gate of Silver Key
   </title>
   <meta name="generator" content="hexo-theme-ayer">
   
@@ -44,7 +44,7 @@
     <main class="content on">
       <section class="outer">
   <article
-  id="post-OpenCv-Intro2"
+  id="post-Matlab-Audio-FFT"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -55,15 +55,15 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  OpenCV For Python Ep.2 HelloWorld
+  Matlab-Audio-FFT
 </h1>
  
 
     </header>
      
     <div class="article-meta">
-      <a href="/2020/09/06/OpenCv-Intro2/" class="article-date">
-  <time datetime="2020-09-06T10:16:14.000Z" itemprop="datePublished">2020-09-06</time>
+      <a href="/2020/11/12/Matlab-Audio-FFT/" class="article-date">
+  <time datetime="2020-11-12T02:10:52.000Z" itemprop="datePublished">2020-11-12</time>
 </a> 
   <div class="article-category">
     <a class="article-category-link" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a>
@@ -74,7 +74,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">1.1k</span>
+            <span class="post-count">1.3k</span>
         </span>
     </span>
 
@@ -83,7 +83,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">4 min</span>
+            <span class="post-count">5 min</span>
         </span>
     </span>
 </div>
@@ -98,46 +98,42 @@
   
     <div class="article-entry" itemprop="articleBody">
        
-  <h1 id="Python-OpenCV-Ep-2-初步应用-基于内置模型"><a href="#Python-OpenCV-Ep-2-初步应用-基于内置模型" class="headerlink" title="Python OpenCV Ep.2 初步应用(基于内置模型)"></a>Python OpenCV Ep.2 初步应用(基于内置模型)</h1><p><a href="https://jzjerry.github.io/2020/08/03/OpenCV-Intro/">查看上一期</a></p>
-<p>在配置好Python环境下的OpenCV之后，我们可以了解到OpenCV已经内置了不少很完善的计算机视觉算法和例程，而在OpenCV的<a href="https://github.com/opencv/opencv" target="_blank" rel="noopener">GitHub</a>上也有很多可用的模型。在本文中，我们将把其中的一些算法与基本例程投入到使用当中，完成一个比较基础的计算机视觉程序——人脸与人脸关键点检测。</p>
-<h2 id="1-前置知识"><a href="#1-前置知识" class="headerlink" title="1.前置知识"></a>1.前置知识</h2><p><strong>①cvtColor(色彩空间转换)</strong></p>
-<p><strong>②Drawing Function(OpenCV绘制函数)</strong></p>
-<p><strong>③Cascade Classifier(级联分类器)</strong></p>
-<p><strong>④Haar Features &amp; LBF Features(Haar特征与LBF特征)</strong></p>
-<p><strong>etc…</strong></p>
-<p>这些知识将逐步在之后(<del>也许是很久之后</del>)的其他博客中补充。</p>
-<h2 id="2-准备工作"><a href="#2-准备工作" class="headerlink" title="2.准备工作"></a>2.准备工作</h2><p>① 读入一个视频、摄像头或是单张的图像自然是我们程序中的第一步。这一部分内容已经在上一期中做了十分详尽的介绍，在本文中就不再重复了。</p>
-<p>② 之后，我们需要提前准备好两个在本次的程序中需要用到的模型，分别是：</p>
-<ul>
-<li><strong>haarcascade_frontalface_alt2</strong></li>
-<li><strong>lbfmodel</strong></li>
-</ul>
-<p>第一个模型的可以在<a href="https://github.com/opencv/opencv/tree/master/data/haarcascades" target="_blank" rel="noopener">OpenCV的Github</a>上找到。</p>
-<p>第二个模型的下载链接将会在之后进行补充。(<del>因为我暂时找不到了</del>)</p>
-<h2 id="3-程序代码"><a href="#3-程序代码" class="headerlink" title="3.程序代码"></a>3.程序代码</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> py</span><br><span class="line"><span class="keyword">import</span> cv2 <span class="keyword">as</span> cv</span><br><span class="line"></span><br><span class="line">cap = cv.VideoCapture(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># load models</span></span><br><span class="line">cascade = cv.CascadeClassifier(<span class="string">"haarcascade_frontalface_alt2.xml"</span>)</span><br><span class="line"><span class="comment"># use this one if you are cat</span></span><br><span class="line"><span class="comment"># cascade = cv.CascadeClassifier("haarcascade_frontalcatface_extended.xml")</span></span><br><span class="line">facemark = cv.face.createFacemarkLBF()</span><br><span class="line">facemark.loadModel(<span class="string">"lbfmodel.yaml"</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> cap.isOpened():</span><br><span class="line">    print(<span class="string">"Cannot open camera"</span>)</span><br><span class="line">    exit()</span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    <span class="comment"># Capture frame-by-frame</span></span><br><span class="line">    ret, frame = cap.read()</span><br><span class="line">    <span class="comment"># if frame is read correctly ret is True</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> ret:</span><br><span class="line">        print(<span class="string">"Can't receive frame (stream end?). Exiting ..."</span>)</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">    <span class="comment"># flip the frame</span></span><br><span class="line">    frame = cv.flip(frame,<span class="number">1</span>,dst = <span class="literal">None</span>)</span><br><span class="line">    gray = cv.cvtColor( frame , cv.COLOR_BGR2GRAY )</span><br><span class="line"></span><br><span class="line">    <span class="comment"># run landmark</span></span><br><span class="line">    faces = cascade.detectMultiScale( gray , minSize = (<span class="number">30</span>,<span class="number">30</span>) )</span><br><span class="line">    <span class="keyword">if</span> len(faces)!=<span class="number">0</span>:</span><br><span class="line">        ok , landmarks = facemark.fit( gray , faces )</span><br><span class="line">        <span class="keyword">if</span> ok:</span><br><span class="line">            <span class="comment"># show result in points</span></span><br><span class="line">            <span class="keyword">for</span> i <span class="keyword">in</span> range(len(landmarks[<span class="number">0</span>][<span class="number">0</span>])):</span><br><span class="line">                cv.circle( frame , tuple(landmarks[<span class="number">0</span>][<span class="number">0</span>][i]) , <span class="number">2</span> , (<span class="number">255</span>,<span class="number">0</span>,<span class="number">0</span>) , <span class="number">-1</span> )</span><br><span class="line">            <span class="keyword">for</span> j <span class="keyword">in</span> range(len(faces)):</span><br><span class="line">                cv.rectangle( frame , (faces[j][<span class="number">0</span>],faces[j][<span class="number">1</span>]) , (faces[j][<span class="number">0</span>]+faces[j][<span class="number">2</span>],faces[j][<span class="number">1</span>]+faces[j][<span class="number">3</span>]) , (<span class="number">255</span>,<span class="number">255</span>,<span class="number">255</span>) , <span class="number">3</span> )</span><br><span class="line">    <span class="comment"># Interrupt on key</span></span><br><span class="line">    cv.imshow( <span class="string">"Display"</span> , frame )</span><br><span class="line">    <span class="keyword">if</span> cv.waitKey(<span class="number">1</span>) == ord(<span class="string">'q'</span>):</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line"><span class="comment"># When everything done, release the capture</span></span><br><span class="line">cap.release()</span><br><span class="line">cv.destroyAllWindows()</span><br></pre></td></tr></table></figure>
+  <h1 id="MATLAB音频录制与时域频域显示"><a href="#MATLAB音频录制与时域频域显示" class="headerlink" title="MATLAB音频录制与时域频域显示"></a>MATLAB音频录制与时域频域显示</h1><p>MATLAB中有各种形式的数据输入函数，其强大而全面的数据读取功能让我们可以使用函数将视频数据、音频数据读取、存储到工作区内。对于视频和音频，进行数学操作和运算后的具体效果可以很直观地被感受到，例如将视频降采样、将音频通过滤波器等。</p>
+<p>本篇博客中，我们将使用MATLAB实现电脑音频输入，音频的频谱分析与音频的滤波。</p>
+<h2 id="基本内容"><a href="#基本内容" class="headerlink" title="基本内容"></a>基本内容</h2><h3 id="1-音频的录制与导入"><a href="#1-音频的录制与导入" class="headerlink" title="1.音频的录制与导入"></a>1.音频的录制与导入</h3><p>MATLAB对音频提供了两种对象——<code>audiorecorder</code>与<code>audioplayer</code>。</p>
+<p><code>audiorecoder</code>可以以特定的采样率、时长、分辨率、声道数等录制音频。在初始化好这个对象之后，使用<code>record</code>和<code>recordblocking</code>函数均可以开始录制音频。</p>
+<p><code>record</code>使用非阻滞模式——即调用后会在继续执行之后的代码的同时进行录音。而<code>recordblocking</code>使用阻滞模式，在调用后到录制完成前都不会向下继续运行代码。对于<code>record</code>函数，可以将<code>audiorecoder</code>对象作为参数使用<code>pause</code>和<code>stop</code>函数暂停和停止录音。</p>
+<p>而在录音完成后，可以使用<code>play</code>函数和<code>playblocking</code>函数来播放<code>audiorecoder</code>对象，其播放模式和<code>record</code>与<code>recordblocking</code>同理。</p>
+<p><code>audioplayer</code>基本参数和<code>audiorecoder</code>类似，但是并不具有录音的功能。</p>
+<p>想要导入具体的音频数据到工作区，可以使用<code>getaudiodata</code>函数，数据将会以向量的形式存储在工作区，可以使用<code>plot</code>函数绘制出来。</p>
+<h3 id="2-音频数据的处理"><a href="#2-音频数据的处理" class="headerlink" title="2.音频数据的处理"></a>2.音频数据的处理</h3><p>将音频数据导入到工作区后，处理的过程就和普通的数据别无二致了。可以使用<code>fft</code>函数进行快速傅里叶变化，查看频谱信息；可以使用函数运算，在时域和频域进行变换和运算；当然，也可以使用MATLAB内置的滤波器对象和滤波器函数<code>filter</code>，对数据进行滤波。</p>
+<p>在这里我们选取了<code>fft</code>和<code>filter</code>进行实验，先将原始音频数据的时域和频域绘出，经过滤波器后，再将处理过后的音频数据在时域和频域绘出。</p>
+<p>绘制频域图像的方法在MATLAB相关教材、DSP相关教材和MATLAB官方帮助的示例中都有详细的解释，这里就不多提了。</p>
+<h3 id="3-FDA-Tool中的滤波器设计"><a href="#3-FDA-Tool中的滤波器设计" class="headerlink" title="3.FDA Tool中的滤波器设计"></a>3.FDA Tool中的滤波器设计</h3><p><em>Filter Design&amp;Analysis Tool</em> 是MATLAB提供的滤波器设计与分析工具，在这个工具中，我们可以选取各种类型的FIR滤波器与IIR滤波器进行设计，并输出滤波器参数或滤波器对象到工作区或保存为MATLAB函数。在本篇中我们主要尝试对录入或读入的音频信号进行处理，所以主要需要注意的是滤波器采样率的设定，该数值一定要和你创建的<code>audioplayer</code>或<code>audiorecoder</code>中的参数对应。</p>
+<p>具体的设计方法非常的自动化，只要调整好各项参数，如：滤波器的截止频率、通频带、增益分贝数、滤波器阶数等即可。</p>
+<p>如果在MATLAB内部操作的话，建议将设计好的滤波器导出为MATLAB的滤波器对象，而如果想要将滤波器运用在DSP、ARM<a href="基于ARM内核CMSIS-DSP库的滤波器的使用将会在之后的博客中有所涉及">^Detail</a></p>
+<p>器件，或其他编程语言的环境，可以将滤波器的一些系数作为数组导出。</p>
+<h3 id="4-音频对象的建立与播放"><a href="#4-音频对象的建立与播放" class="headerlink" title="4.音频对象的建立与播放"></a>4.音频对象的建立与播放</h3><p>将数据变化为可播放的对象十分简单，只需要利用<code>audioplayer(data,Fs)</code>去建立一个音频对象，并使用<code>play</code>去播放即可。</p>
+<p>其中<code>data</code>对应单纯的音频数据，<code>Fs</code>对应采样率。如果两者不对应的话，可能会出现快放或者慢放的效果，当然也可以利用这个来做一些特殊的的事情。</p>
+<h2 id="程序流程"><a href="#程序流程" class="headerlink" title="程序流程"></a>程序流程</h2><p>在本篇的程序中，将按序执行以下几件事：</p>
+<ol>
+<li>以<code>44100</code>的采样率录制<code>5</code>秒的音频。</li>
+<li>绘制录入音频数据的波形与其快速傅里叶变换得到的频谱波形</li>
+<li>将音频数据经过一个滤波器对象的处理</li>
+<li>绘制处理后的音频数据的波形与其频谱波形</li>
+<li>播放处理后的音频</li>
+<li>播放原始音频</li>
+</ol>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">recObj = audiorecorder;</span><br><span class="line"></span><br><span class="line">Fs =  <span class="number">44100</span>; 	<span class="comment">% sample rate</span></span><br><span class="line">seconds = <span class="number">5</span>;	<span class="comment">% total length of audio</span></span><br><span class="line">nBits = <span class="number">16</span> ; 	</span><br><span class="line">nChannels = <span class="number">2</span> ; </span><br><span class="line">ID = <span class="number">-1</span>; 		<span class="comment">% default audio input device </span></span><br><span class="line">recObj = audiorecorder(Fs,nBits,nChannels,ID);</span><br><span class="line"></span><br><span class="line">total_samples = seconds*Fs;</span><br><span class="line"></span><br><span class="line"><span class="built_in">disp</span>(<span class="string">'Start speaking.'</span>)</span><br><span class="line">recordblocking(recObj,seconds);</span><br><span class="line"><span class="built_in">disp</span>(<span class="string">'End of Recording.'</span>);</span><br><span class="line"></span><br><span class="line">data = getaudiodata(recObj);</span><br><span class="line"></span><br><span class="line">subplot(<span class="number">2</span>,<span class="number">2</span>,<span class="number">1</span>);</span><br><span class="line"><span class="built_in">plot</span>(data);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">fftresult = fft(data);</span><br><span class="line"></span><br><span class="line">f = <span class="built_in">linspace</span>(<span class="number">0</span>,Fs/<span class="number">2</span>,total_samples/<span class="number">2</span>+<span class="number">1</span>);</span><br><span class="line">subplot(<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>);</span><br><span class="line"><span class="built_in">plot</span>(f,<span class="built_in">abs</span>(fftresult(<span class="number">1</span>:total_samples/<span class="number">2</span>+<span class="number">1</span>)))</span><br><span class="line"></span><br><span class="line">axis([<span class="number">0</span> <span class="number">5000</span> <span class="number">0</span> <span class="number">2000</span>])	<span class="comment">% axis of the plot should be tuned depending on data </span></span><br><span class="line"></span><br><span class="line"><span class="comment">% Design your Filter Object Hd here </span></span><br><span class="line"></span><br><span class="line">FIR_data = filter(Hd,data);</span><br><span class="line"></span><br><span class="line">t = <span class="built_in">linspace</span>(<span class="number">0</span>,seconds,total_samples);</span><br><span class="line">t = [t',t'];</span><br><span class="line"></span><br><span class="line">k = <span class="number">1</span>:total_samples;</span><br><span class="line"></span><br><span class="line">new_audio =  audioplayer(FIR_data, Fs);</span><br><span class="line"></span><br><span class="line">fftresult_alter = <span class="built_in">abs</span>(fft(FIR_data));</span><br><span class="line"></span><br><span class="line">subplot(<span class="number">2</span>,<span class="number">2</span>,<span class="number">3</span>);</span><br><span class="line"><span class="built_in">plot</span>(FIR_data);</span><br><span class="line"></span><br><span class="line">subplot(<span class="number">2</span>,<span class="number">2</span>,<span class="number">4</span>);</span><br><span class="line"><span class="built_in">plot</span>(f,fftresult_alter(<span class="number">1</span>:total_samples/<span class="number">2</span>+<span class="number">1</span>))</span><br><span class="line">axis([<span class="number">0</span> <span class="number">5000</span> <span class="number">0</span> <span class="number">2000</span>])	<span class="comment">% axis of the plot should be tuned depending on data </span></span><br><span class="line"></span><br><span class="line">playblocking(new_audio);</span><br><span class="line">play(recObj);</span><br></pre></td></tr></table></figure>
 
-<p>在本程序中我们使用的是摄像头捕捉来完成实时的人脸识别与关键点标记，因此我们首先建立一个<code>VideoCapture()</code>。</p>
-<p>之后，就是使用CV2库的<code>CascadeClassifier</code>来载入我们所下载的Haar特征分类器模型。</p>
-<p>同样地，我们建立新的LBF Facemark，并使用<code>face.loadModel()</code>来载入LBF特征模型。</p>
-<p>在初始化工作完成后，就可以开始逐帧显示摄像头捕获图像，并使用模型对图像进行识别。为了处理图像，我们必须使用<code>cvtColor()</code>将图像的颜色空间从默认的BGR空间转换到GRAY灰度空间。先运行建立好的<code>CascadeClassifier</code>，从返回的数据中分别可以提取出人脸识别矩形的信息。然后，我们在这个矩形的范围内运行建立的<code>Facemark</code>，在人脸框内找出关键点。</p>
-<p>为了用圆形绘制函数画出关键点，我们必须用一个<code>tuple</code>变量作为圆心的坐标点，而这一坐标点的信息实际是在返回数据<code>landmarks[0][0][i]</code>内的，因此我们利用循环来遍历<code>landmarks[0][0]</code>。</p>
-<p>对于人脸框的绘制，<code>CascadeClassifier</code>识别后返回的矩形数据是以左上角坐标<code>(x,y)</code>和宽度高度<code>(w,h)</code>四个数据的形式存储的。而矩形绘制函数要求提供的是左上角和右下角的坐标点位置，只需要做个加法转换一下就行了。</p>
-<p>运行之后的效果如下：</p>
-<p><img src="https://i.loli.net/2020/09/06/37Vst8JN2olMHph.jpg" alt="layout.jpg"></p>
-<img src="https://i.loli.net/2020/09/06/ruXElvHgUxK1DPV.jpg" alt="layout2.jpg" style="zoom: 67%;" />
-
-<p>模型很成功地识别了田所浩二先辈<del>证明了野兽先辈人类说</del>。</p>
-<img src="https://i.loli.net/2020/09/06/NGVtq8IBmCfb2lQ.jpg" alt="layout4.jpg" style="zoom:50%;" />
-
-<p>对于纸片人没有做出反映，说明其准确度还是很可观的。</p>
-<img src="https://i.loli.net/2020/09/06/HpStUdOqRMA52LG.jpg" alt="layout3.jpg" style="zoom: 80%;" />
-
-<p>但是！却把露露的头饰误认成为了人脸，毕竟是比较老旧的模型，误识别的情况还是会存在的。</p>
-<p>我也尝试过按照关键点的设计手绘人脸，确实也被识别了。</p>
-<p>不过作为OpenCV的初步运用，确实只需要比较低的学习成本，上手非常容易。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://docs.opencv.org/master/db/d28/tutorial_cascade_classifier.html" target="_blank" rel="noopener">OpenCV:<strong>Object Detection (objdetect module)</strong></a></p>
-<p><a href="https://zhuanlan.zhihu.com/p/35390012" target="_blank" rel="noopener">OpenCV实战：人脸关键点检测（FaceMark）—— Amusi</a></p>
- 
+<blockquote>
+<p>图片待补充——2020.11.15 by Jzjerry</p>
+</blockquote>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://ww2.mathworks.cn/help/matlab/audio-and-video.htm" target="_blank" rel="noopener">音频和视频 - MATLAB &amp; Simulink - Mathworks 中国</a></p>
+<p><a href="https://ww2.mathworks.cn/help/matlab/ref/fft.html" target="_blank" rel="noopener">快速傅里叶变换 - MATLAB &amp; Simulink - Mathworks 中国</a></p>
+<p><a href="https://ww2.mathworks.cn/help/signal/digital-and-analog-filters.html" target="_blank" rel="noopener">数字和模拟滤波器 - MATLAB &amp; Simulink - Mathworks 中国</a></p>
+<p><a href="https://blog.csdn.net/zxylv/article/details/102751960" target="_blank" rel="noopener">基于Matlab dsp工具箱 的实时音频采集及频谱显示 - Panda_1875的博客 - CSDN</a></p>
+<h2 id="P-S"><a href="#P-S" class="headerlink" title="P.S."></a>P.S.</h2> 
       <!-- reward -->
       
       <div id="reward-btn">
@@ -203,12 +199,12 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://jzjerry.github.io/2020/09/06/OpenCv-Intro2/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://jzjerry.github.io/2020/11/12/Matlab-Audio-FFT/" alt="微信分享二维码">
     </div>
 </div>
 
 <div id="share-mask"></div>  
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Computer-Vision/" rel="tag">Computer Vision</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/" rel="tag">Python</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Algorithm/" rel="tag">Algorithm</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MATLAB/" rel="tag">MATLAB</a></li></ul>
 
     </footer>
   </div>
@@ -216,19 +212,10 @@
    
   <nav class="article-nav">
     
-      <a href="/2020/11/12/Matlab-Audio-FFT/" class="article-nav-link">
-        <strong class="article-nav-caption">上一篇</strong>
-        <div class="article-nav-title">
-          
-            Matlab-Audio-FFT
-          
-        </div>
-      </a>
     
-    
-      <a href="/2020/08/03/OpenCV-Intro/" class="article-nav-link">
+      <a href="/2020/09/06/OpenCv-Intro2/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">OpenCV For Python Ep.1 Intro</div>
+        <div class="article-nav-title">OpenCV For Python Ep.2 HelloWorld</div>
       </a>
     
   </nav>

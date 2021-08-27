@@ -135,14 +135,24 @@
 <p>ESP32的原生开发环境是乐鑫（Espressif）主推的基于<code>CMake</code>和<code>Python</code>脚本的ESP-IDF(Espressif IoT Development Framework) 环境。</p>
 <p>跟随着<a href="https://docs.espressif.com/projects/esp-idf/zh_CN/latest/esp32/get-started/index.html" target="_blank" rel="noopener">官方ESP-IDF编程指南</a>的脚步，只需要将整个环境git clone下来，然后执行一下一键安装脚本，基本上来说不会出现太大问题。接下来就可以直接使用<code>idf.py</code>这个Python脚本进行包括配置芯片框架（类似于STM32CUBE和MSP的syscfg的配置外设生成宏和头文件的功能）、编译项目、烧录项目、打开串口监视器等功能了。</p>
 <p>不难看出，基于Python的pyOCD和乐鑫附加的各种功能，一套完整的工具链最终成功地被乐鑫集成到了同一个Python脚本里，这确实是个很不错的设计。但是，官方提供的主要部分也就到此为止了，如果没有其他的第三方工具，整个过程都只能在纯命令台下完成。作为一个被完善的图形化IDE惯坏了的人，一边用文本编辑器写代码，另一边用纯命令台完成编译、烧录实在很难适应，也不够现代化。于是，我投身尝试官方文档里看起来很诱人的选择：VS Code+官方ESP-IDF插件。</p>
-<h2 id="Something-Wrong？难以配置的谜语人插件"><a href="#Something-Wrong？难以配置的谜语人插件" class="headerlink" title="Something Wrong？难以配置的谜语人插件"></a>Something Wrong？难以配置的谜语人插件</h2><p>打开VS Code，随手一搜就能找到有着高下载量的官方插件<a href="https://marketplace.visualstudio.com/items?itemName=espressif.esp-idf-extension" target="_blank" rel="noopener">Espressif IDF</a>。VS Code有着丰富的各类语言插件，对于C/C++语言支持也十分令人舒适，无论是找引用还是查看函数信息等都很方便，而ESP-IDF作为基于CMake的开发环境，也比较适合用VS Code开发，两者的组合看起来值得一试。</p>
+<h2 id="Something-Wrong？难以配置的谜语人官方插件"><a href="#Something-Wrong？难以配置的谜语人官方插件" class="headerlink" title="Something Wrong？难以配置的谜语人官方插件"></a>Something Wrong？难以配置的谜语人官方插件</h2><p>打开VS Code，随手一搜就能找到有着高下载量的官方插件<a href="https://marketplace.visualstudio.com/items?itemName=espressif.esp-idf-extension" target="_blank" rel="noopener">Espressif IDF</a>。VS Code有着丰富的各类语言插件，对于C/C++语言支持也十分令人舒适，无论是找引用还是查看函数信息等都很方便，而ESP-IDF作为基于CMake的开发环境，也比较适合用VS Code开发，两者的组合看起来值得一试。</p>
 <p>插件装上后，马上便弹出内置页面选取ESP-IDF下载路径。既然前文中已经把整个ESP-IDF环境装过一遍了，那我何必另起炉灶再下一遍呢？于是我选择了已有的ESP-IDF路径，插件很快就把环境给连接上了。看起来似乎没什么大问题，但当我打开一个Hello World项目时，刚按下编译按键，整个插件便陷入了短暂的沉默，不久之后弹出一句”Something wrong during building”之类的提示。</p>
 <p><img src="https://i.loli.net/2021/05/12/Smpf64xnTJMBlUu.jpg" alt="What is something?"></p>
 <p>不得不说这个Something Wrong让我实在摸不到头脑，这样的提示可以说是开发者最讨厌的了。之后的一段时间，我依次逛了逛乐鑫的论坛、GitHub上插件的issue，并重新让插件自己安装了一次ESP-IDF环境，但还是无果而终。</p>
 <p>在放弃这个开发环境前的最后一个想法是我电脑上的Python版本问题，网上部分资料中确实提到过要求Python 3.7以上才能正常使用插件，但介于我在自己的Python 3.6上已经写了不少东西，加上DDL的追杀，还是选择尝试另一个环境比较省时省力。</p>
 <h2 id="Arduino-IDE——行，但又不太行"><a href="#Arduino-IDE——行，但又不太行" class="headerlink" title="Arduino IDE——行，但又不太行"></a>Arduino IDE——行，但又不太行</h2><blockquote>
-<p>To be continue…</p>
-<p>つづく</p>
+<p>2021.08.27更新</p>
+</blockquote>
+<p>作为拥有微控制器领域最好的社区生态的<strong>Arduino框架</strong>和<strong>Arduino IDE</strong>自然早就有人做好了针对ESP的移植，只需要在IDE里找到ESP32的Library下载安装，剩下的就是简单直接的开发了。单凭Arduino框架的开发已经可以做到绝大部分的事情了，不用说对于ESP32的核心功能——WIFI，Arduino下也有了做好了移植的库。从装好ESP32的插件到写出一个HTTP+json解析的简单应用（Arduino的库里很容易找到），我只花了不到1个小时，可以说是十分方便了。</p>
+<p>然而说完了优点，Arduino框架下死板的地方也逐渐浮现了出来。ESP32的引脚自由度十分高，几乎每个引脚都能承担ADC、I2C、SPI的功能，然而在使用Arduino框架时，这些外设基本是被绑死了，尤其是I2C和SPI这样的片间通信接口。这就让稍微复杂一点的、需要变动引脚的程序开发十分艰难。虽然我认为基于原生库之上建立的Arduino框架一定是可以和原生库一起使用开发的，但是没有找到太多这方面的资料，只好作罢。</p>
+<h2 id="Platform-IO-ESP-IDF——我找到的最优解"><a href="#Platform-IO-ESP-IDF——我找到的最优解" class="headerlink" title="Platform IO + ESP-IDF——我找到的最优解"></a>Platform IO + ESP-IDF——我找到的最优解</h2><p>绕了一大圈发现，想要全面的开发ESP32，脱离了官方的ESP-IDF是很难做到的，但是官方的环境配置和插件已经让我浪费了不少时间。这时，我在<strong>Platform IO</strong>这个著名VS Code插件中，找到了对ESP-IDF框架的支持。和Arduino一样的简便，只需要下好框架，选好Target芯片和开发板，新建项目，直接就可以开始开发。</p>
+<p>令人开心的是，装好框架之后，整个Cmake的环境也自动地配置完成了，没有其他复杂的步骤。同时，浏览Examples也可以在IDE里进行，刷新Cmake列表、调整编译文件、加入自己的头文件、引入开源库等等一系列功能都完善的集成在了这一个插件上。最终，我在Platform IO上完成了整个项目（课程设计）开发，让我重新认识了这个插件。</p>
+<h2 id="Node-js固件——Node-MCU的特色开发方式"><a href="#Node-js固件——Node-MCU的特色开发方式" class="headerlink" title="Node.js固件——Node MCU的特色开发方式"></a>Node.js固件——Node MCU的特色开发方式</h2><p>值得一提的是，我所使用的开发板是名为<a href="https://www.nodemcu.com/index_cn.html" target="_blank" rel="noopener">NodeMCU</a>的系列，其特色在于可以刷上一种固件，采用Lua脚本，让芯片可以直接用类似Node.js的方式开发网络应用，和MicroPython很相像。听起来十分美好，但是整体来说还是一个比较试验性的东西。</p>
+<p>首先，官方提供的原始版本固件会把所有的外设和功能全部打开，导致芯片比较烫。其次，固件确实是可以定制的，可以选取需要的外设和功能，不需要的直接关闭，但是整个定制过程是基于一个<a href="https://nodemcu-build.com" target="_blank" rel="noopener">网页</a>的，而定制好的固件也并不能直接下载，而是会通过邮件发送到你的邮箱了。还有一点是，NodeMCU的ESP8266版本框架非常完善，甚至继承了u8g2库（OLED图形库），但是ESP32版本框架还是BETA版，很多功能不够完善。</p>
+<p>总的来说，如果使用ESP8266版的NodeMCU的话，这个开发方式还是可以尝试的，但和MicroPython或者Arduino一样，面对复杂一些的开发，还是原生框架更胜一筹。</p>
+<blockquote>
+<p>如果有下一期的话，可能会写一下FreeRTOS和原生HAL库的内容</p>
+<p>By Jzjerry 2021.08.27</p>
 </blockquote>
  
       <!-- reward -->

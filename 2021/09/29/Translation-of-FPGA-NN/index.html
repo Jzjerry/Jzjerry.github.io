@@ -107,6 +107,7 @@
 <p>其次是本以为自己对硬件方面的了解可以支撑起专业名词的翻译，但是没想到这个前言的机器学习和深度学习的名词浓度远高于FPGA和硬件本身。以我比乐事薯片里薯片还少的深度学习知识，想找到正确的名词翻译实在是困难，大多数专业名词都把原文放在了后面的括号里，如有错误请多包含。</p>
 <p>最后是篇幅上，我完全没想到一个前言翻译过来长达2400+字，看来想要做这方面的学习长路漫漫啊。本来还打算翻译目录部分，但是最后还是懒了。</p>
 </blockquote>
+<a id="more"></a>
 <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在上世纪80年代和90年代早期，神经元计算机(Neurocomputers)的设计和实现领域中有过很多重要的工作。然而，大部分这些努力被评定为失败的：硬件神经元计算机从没有被广泛投入使用过。缺少成功的原因很大程度上来源于一个事实，早期的工作几乎完全以开发基于ASIC技术的自制神经元计算机为目标的，但在这个特定的领域上，ASIC技术从没能够得到充分的发展或者足够的竞争力来达成大范围的采用。而在另一方面，上文提到的这个时期的门阵列(gate-arrays)对于真正的人工神经网络(ANN)来说，要么规模不够大，要么速度不够快。但现在的技术有了改进：FPGA的容量和性能现在达到的水平足以成为一个更现实的替代品。因此，基于FPGA设计神经元计算机相较过去来说是一个更可行的提议了。本书总结了一些以此为目标的工作，并由12篇从很多投稿中评审选出的论文组成。本书书面上分为三个部分：第1章到第4章解决一些基本的问题；第5章到第11章阐述了各种不同的实现；第12章中可以看到从一个大规模项目中学到的教训，并且在现在和未来的技术下重新审视了设计上的问题。</p>
 <p><strong>第1章</strong>中复习了人工神经网络理论的基础知识，讨论了不同的神经网络硬件实现方法（ASIC技术和FPGA技术都会讨论，重心放在人工神经网络的特殊特性上），并且总结了一个关于性能评估的简短笔记作为结尾。特别的点在于神经网络中固有的并行性的利用和算术方程的适当实现方法，特别是S型生长方程(Sigmoid Function)的实现方法。对于S型生长方程，本章节包含了一项十分重要的贡献。</p>
 <p>一系列特定的算数运算构成了神经网络运算的核心，而<strong>第2章</strong>解决了一个基本的问题：如何选择正确的数字精度格式来达到精度和实现（成本和性能）上的最优权衡。标准的单精度或者双精度浮点表示法最小化了量化误差，但需要大量的硬件资源。精度较低的定点数表示法可能需要较少的硬件资源，但增加了会使神经网络的学习无法发生的量化误差，特别是在应用于回归问题上时。第2章验证了这个问题，并汇报了一个最近的实验。在这个实验中，我们在FPGA上同时使用浮点数和定点数实现了一个多层感知器。</p>
@@ -132,10 +133,6 @@
 <p>The final chapter consists of a retrospective look at the REMAP project, which was the construction of design, implementation, and use of large-scale parallel architectures for neural-network applications. The chapter gives an overview of the computational requirements found in algorithms in general and motivates the use of regular processor arrays for the efficient execution of such algorithms. The architecture, following the SIMD principle (Single Instruction stream, Multiple Data streams), is described, as well as the mapping of some important and representative ANN algorithms. Implemented in FPGA, the system served as an architecture laboratory. Variations of the architecture are discussed, as well as scalability of fully synchronous SIMD architectures. The design principles of a VLSI-implemented successor of REMAP-<em>β</em> are described, and the paper concludes with a discussion of how the more powerful FPGA circuits of today could be used in a similar architecture.</p>
  
       <!-- reward -->
-      
-      <div id="reward-btn">
-        Donate
-      </div>
       
     </div>
     

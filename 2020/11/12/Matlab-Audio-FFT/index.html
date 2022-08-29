@@ -100,6 +100,7 @@
        
   <h1 id="MATLAB音频录制与时域频域显示"><a href="#MATLAB音频录制与时域频域显示" class="headerlink" title="MATLAB音频录制与时域频域显示"></a>MATLAB音频录制与时域频域显示</h1><p>MATLAB中有各种形式的数据输入函数，其强大而全面的数据读取功能让我们可以使用函数将视频数据、音频数据读取、存储到工作区内。对于视频和音频，进行数学操作和运算后的具体效果可以很直观地被感受到，例如将视频降采样、将音频通过滤波器等。</p>
 <p>本篇博客中，我们将使用MATLAB实现电脑音频输入，音频的频谱分析与音频的滤波。</p>
+<a id="more"></a>
 <h2 id="基本内容"><a href="#基本内容" class="headerlink" title="基本内容"></a>基本内容</h2><h3 id="1-音频的录制与导入"><a href="#1-音频的录制与导入" class="headerlink" title="1.音频的录制与导入"></a>1.音频的录制与导入</h3><p>MATLAB对音频提供了两种对象——<code>audiorecorder</code>与<code>audioplayer</code>。</p>
 <p><code>audiorecoder</code>可以以特定的采样率、时长、分辨率、声道数等录制音频。在初始化好这个对象之后，使用<code>record</code>和<code>recordblocking</code>函数均可以开始录制音频。</p>
 <p><code>record</code>使用非阻滞模式——即调用后会在继续执行之后的代码的同时进行录音。而<code>recordblocking</code>使用阻滞模式，在调用后到录制完成前都不会向下继续运行代码。对于<code>record</code>函数，可以将<code>audiorecoder</code>对象作为参数使用<code>pause</code>和<code>stop</code>函数暂停和停止录音。</p>
@@ -135,10 +136,6 @@
 <p><a href="https://blog.csdn.net/zxylv/article/details/102751960" target="_blank" rel="noopener">基于Matlab dsp工具箱 的实时音频采集及频谱显示 - Panda_1875的博客 - CSDN</a></p>
  
       <!-- reward -->
-      
-      <div id="reward-btn">
-        Donate
-      </div>
       
     </div>
     

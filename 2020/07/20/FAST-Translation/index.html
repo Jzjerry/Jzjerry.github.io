@@ -102,6 +102,7 @@
 <p>原文地址：<a href="https://en.wikipedia.org/wiki/Features_from_accelerated_segment_test" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Features_from_accelerated_segment_test</a></p>
 <p>第一次尝试翻译，渣翻请谅解，欢迎提出改进意见</p>
 </blockquote>
+<a id="more"></a>
 <p>加速分段特征点检测(FAST)是一种角点检测方法，在很多计算机视觉的课题当中，它可以用于提取特征点并追踪(track)和比对(map)物体。FAST角点检测最初由Edward Rosten和Tom Drummond开发，并于2006年正式发布。<sup>[<a href="#ref">1</a>]</sup>FAST角点检测的一大最有前途的优点在于它的计算效率。正如FAST的名字一样，它确实比许多众所周知的特征提取方法，诸如使用高斯差分(DoG)的SIFT检测、SUSAN检测和Harris检测，要更加快速(faster)。更加强大的是，如果结合机器学习技术，FAST可以在计算时间和资源上达到很高的性能(Superior Performance)。FAST角点检测的高速性能(high-speed performance)使得它非常适合应用在实时视频的处理上。</p>
 <h2 id="分段测试检测"><a href="#分段测试检测" class="headerlink" title="分段测试检测"></a>分段测试检测</h2><p>FAST角点检测使用了一个16像素的圆(半径为3的Bresenham圆)来确定(classify)选中的点<strong>p</strong>是否确实是一个角点。圆上的每一个像素都以顺时针编号为1至16。如果圆上一组<strong>N</strong>个相邻的像素点的亮度(intensity)全部都比选中点<strong>p</strong>的亮度(记为<strong>I<sub>p</sub></strong>)要高出或低出阈值<strong>t</strong>，则点<strong>p</strong>被归类为一个角点。该条件可以写成：</p>
 <ul>
@@ -341,10 +342,6 @@
 </ul>
  
       <!-- reward -->
-      
-      <div id="reward-btn">
-        Donate
-      </div>
       
     </div>
     

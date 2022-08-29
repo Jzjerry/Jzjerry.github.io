@@ -99,6 +99,7 @@
     <div class="article-entry" itemprop="articleBody">
        
   <h1 id="Pop-Count-位计数算法学习笔记"><a href="#Pop-Count-位计数算法学习笔记" class="headerlink" title="Pop_Count 位计数算法学习笔记"></a>Pop_Count 位计数算法学习笔记</h1><p>所谓Pop_Count算法，即Bit Population Count算法，解决的都是同一个简洁明了的问题——统计一个多位二进制数中<strong>‘1’</strong>的个数。如此简单的问题，不需要动脑子就可以想到循环判断的$O(n)$算法，而作为可能被频繁调用的功能，$O(n)$显然远算不上这个问题的最优解。在本篇中，我们将涉及多个”神乎其技“的Bit Count(位计数)算法，感受位操作与位运算的强大与奇妙。方便起见，本文将在C++语言下描述算法。</p>
+<a id="more"></a>
 <h2 id="朴素算法"><a href="#朴素算法" class="headerlink" title="朴素算法"></a>朴素算法</h2><p>抛开效率上的需求，相信大部分人第一分钟都能想到一个最朴素的算法：<strong>逐位统计</strong>。利用位运算符，我们只需要写一个循环就可以实现Pop_Count了。对于一个32位的无符号整型，利用一个for循环解决问题。</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">rekt_popcnt</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">int</span> n)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>;i&lt;<span class="number">32</span>;i++)</span><br><span class="line">	&#123;</span><br><span class="line">		count += n&amp;(<span class="number">0x01</span>);</span><br><span class="line">		n = n&gt;&gt;<span class="number">1</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> count; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -191,10 +192,6 @@
 </ul>
  
       <!-- reward -->
-      
-      <div id="reward-btn">
-        Donate
-      </div>
       
     </div>
     

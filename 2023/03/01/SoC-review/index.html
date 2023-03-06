@@ -74,7 +74,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> Word count:</span>
-            <span class="post-count">1.1k</span>
+            <span class="post-count">1.6k</span>
         </span>
     </span>
 
@@ -83,7 +83,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> Reading time≈</span>
-            <span class="post-count">7 min</span>
+            <span class="post-count">9 min</span>
         </span>
     </span>
 </div>
@@ -98,7 +98,7 @@
   
     <div class="article-entry" itemprop="articleBody">
        
-  <h1 id="Brief-Review-on-Open-source-SoCs-amp-SoC-Generators"><a href="#Brief-Review-on-Open-source-SoCs-amp-SoC-Generators" class="headerlink" title="Brief Review on Open-source SoCs &amp; SoC Generators"></a>Brief Review on Open-source SoCs &amp; SoC Generators</h1><p>As the raise of open-source hardware and RISC-V, there are already tons of RISC-V CPU cores, however, only a few open-source SoC designs are developed. In this blog, I will cover some of open-source SoCs (System-on-chip) and their generators.</p>
+  <h1 id="Brief-Review-on-Open-source-SoCs-amp-SoC-Generators"><a href="#Brief-Review-on-Open-source-SoCs-amp-SoC-Generators" class="headerlink" title="Brief Review on Open-source SoCs &amp; SoC Generators"></a>Brief Review on Open-source SoCs &amp; SoC Generators</h1><h2 id="OP"><a href="#OP" class="headerlink" title="OP"></a>OP</h2><p>As the raise of open-source hardware and RISC-V, there are already tons of RISC-V CPU cores, however, only a few open-source SoC designs are developed. In this blog, I will cover some of open-source SoCs (System-on-chip) and their generators.</p>
 <a id="more"></a>
 <h2 id="Chipyard"><a href="#Chipyard" class="headerlink" title="Chipyard"></a>Chipyard</h2><p>As the undoubtable pioneer of RISC-V, researchers from UCB have made many great contributions to the whole RISC-V ecology, and <a href="https://github.com/ucb-bar/chipyard" target="_blank" rel="noopener"><strong>Chipyard</strong></a> is another incredible invention from them.<br>Based on their previous works about RISC-V CPUs (Rocket, BOOM) and the mighty Chisel hardware language, the Chipyard framework provides designers with a relatively complete SoC design flow. </p>
 <h3 id="Framework-Structure"><a href="#Framework-Structure" class="headerlink" title="Framework Structure"></a>Framework Structure</h3><p>The components of Chipyard include:</p>
@@ -137,15 +137,50 @@
 <p>The core has a competitive performance which beats the ARM Cortex-M4 core in many benchmark kernels.<br>However, custom instructions bring the need of custom GCC compilers, which could be a tricky problem for others to modify the core.</p>
 <h3 id="SoC-1"><a href="#SoC-1" class="headerlink" title="SoC"></a>SoC</h3><p><a href="https://github.com/pulp-platform/pulpino" target="_blank" rel="noopener">PULPino</a> and <a href="https://github.com/pulp-platform/pulpissimo" target="_blank" rel="noopener">PULPissimo</a> are two SoC platforms using RI5CY core.<br>PULPion is a single core SoC, information about PULPino is in the same <a href="https://riscv.org/wp-content/uploads/2016/01/Wed1315-PULP-riscv3_noanim.pdf" target="_blank" rel="noopener">slide</a> mentioned above. The architecture of SoC is rather simple, it contains all the basic components for a SoC with AXI4 bus connecting them with each other. It’s a good educational example as a minimal system, but can be easily extended.<br>PULPissimo shows how could PULPion be extended to a more powerful system. Here is a the diagram of its architecture:<br><img src="https://github.com/pulp-platform/pulpissimo/raw/master/doc/pulpissimo_archi.png" alt="PULPissimo SoC"><br>With higher completeness and complexity, PULPissimo supports integration of hardware accelerators (Hardware Processing Engines), which gives it the capability of dealing with complex signal processing operations and AI kernels.</p>
 <h3 id="Summary-1"><a href="#Summary-1" class="headerlink" title="Summary"></a>Summary</h3><p>Comparing to Chipyard, PULP platform has some really great SoC projects in IoT and low Power design, and the open-source hardware IPs including AXI bus, peripherals and cores. Nonetheless, as most of hardware are designed directly(using SystemVerilog) without generators, the lack of supports for customizations could be a problem. </p>
-<h2 id="LiteX"><a href="#LiteX" class="headerlink" title="LiteX"></a>LiteX</h2><blockquote>
-<p>Coming Soon..</p>
-</blockquote>
-<h3 id="Framework-Structure-2"><a href="#Framework-Structure-2" class="headerlink" title="Framework Structure"></a>Framework Structure</h3><h3 id="Cores-2"><a href="#Cores-2" class="headerlink" title="Cores"></a>Cores</h3><h3 id="SoC-2"><a href="#SoC-2" class="headerlink" title="SoC"></a>SoC</h3><h2 id="Briey-SoC-amp-Murax-SoC"><a href="#Briey-SoC-amp-Murax-SoC" class="headerlink" title="Briey SoC &amp; Murax SoC"></a>Briey SoC &amp; Murax SoC</h2><p>Briey and Murax are both a part of <a href="https://github.com/SpinalHDL/VexRiscv" target="_blank" rel="noopener">VexRiscv</a> project, which is a FPGA friendly 32 bit RISC-V CPU implementation using Spinal HDL, a language very similar to Chisel. These two SoCs serve as a sort of demonstrations of extending VexRiscv into a complete system, but they do benefit from highly configurable hardware generation provided by Spinal HDL.</p>
+<h2 id="LiteX"><a href="#LiteX" class="headerlink" title="LiteX"></a>LiteX</h2><p><a href="https://github.com/enjoy-digital/litex" target="_blank" rel="noopener">LiteX</a> is a open-source SoC builder framework grown up from the community. Targetting at creating systems based on FPGAs conveniently, the framework has integrated many awesome small projects. A complete work flow from upper level designs to FPGA bitstreams is provided in the open source manner. Mixed languages support is a unique feature of LiteX, which largely increases the agility of SoC development.</p>
+<h3 id="Framework-Structure-2"><a href="#Framework-Structure-2" class="headerlink" title="Framework Structure"></a>Framework Structure</h3><p>LiteX provides all the common components required to easily create an FPGA Core/SoC:</p>
+<ul>
+<li><p>Hardware Components such as Buses, IP cores and CPU cores</p>
+</li>
+<li><p>Debug infrastructure</p>
+</li>
+<li><p>Simulation through Verilator</p>
+</li>
+<li><p>Backends</p>
+<pre><code>                        +---------------+
+                        |FPGA toolchains|
+                        +----^-----+----+
+                             |     |
+                          +--+-----v--+
+         +-------+        |           |
+         | Migen +--------&gt;           |
+         +-------+        |           |        Your design
+                          |   LiteX   +---&gt; ready to be used!
+                          |           |
++----------------------+  |           |
+|LiteX Cores Ecosystem +--&gt;           |
++----------------------+  +-^-------^-+
+ (Eth, SATA, DRAM, USB,     |       |
+  PCIe, Video, etc...)      +       +
+                           board   target
+                           file    file</code></pre></li>
+</ul>
+<p>Unlike others, LiteX builds up a ecosystem for SoC design, making it a lot easier than tradtional approaches.<br>The high flexibility of the framework enables different options for many details of SoCs, especially for ISAs (including RISC-V and x86) and interfaces (including PCIe, SATA and Ethernet). The variety of IP cores supports the creation of SoCs that powerful enough for actual applications, rather than simple toy projects.</p>
+<p>Python-based hardware design tools like Migen are integrated, and a set of well maintained documents/wikis is offered.</p>
+<h3 id="Cores-2"><a href="#Cores-2" class="headerlink" title="Cores"></a>Cores</h3><p><a href="https://github.com/enjoy-digital/litex/wiki/CPUs" target="_blank" rel="noopener">CPU cores</a> with different ISAs are provided by the framework, and different variants for each cores are provided as well. From the documents, it seems the VexRiscv is one of the most supported and feature-rich cores in LiteX, which is further discussed in <a href="#cores-3">next section</a>. </p>
+<p>Multi-core system support is another great thing in LiteX. This gives users the power of creating Linux capable SoCs.</p>
+<h3 id="SoC-2"><a href="#SoC-2" class="headerlink" title="SoC"></a>SoC</h3><p>A multi-core Linux capable SoC is set as a example of LiteX SoC:<br><img src="https://user-images.githubusercontent.com/1450143/103343266-f8cc9a00-4a8b-11eb-9444-f02e1522a490.png" alt="LiteX SoC"></p>
+<p>As the framework is mainly based on Python, the generation of SoCs is very agile. Simulators for both CPU cores and SoCs are included, which enables debugging and testing without FPGA boards. </p>
+<h3 id="Summary-2"><a href="#Summary-2" class="headerlink" title="Summary"></a>Summary</h3><p>There are a lot of novel things in Litex, which differs it from other frameworks mentioned. While most of academic frameworks are lacking of good tutorials, user-friendly interactions and active maintenance, LiteX builds up a lively community that warmly welcomes new users, and some research papers have shown the LiteX’s potential of academical uses.</p>
+<p>Can’t wait to have a try? Just clone it and run the setup script!</p>
+<h2 id="Briey-SoC-amp-Murax-SoC"><a href="#Briey-SoC-amp-Murax-SoC" class="headerlink" title="Briey SoC &amp; Murax SoC"></a>Briey SoC &amp; Murax SoC</h2><p>Briey and Murax are both a part of <a href="https://github.com/SpinalHDL/VexRiscv" target="_blank" rel="noopener">VexRiscv</a> project, which is a FPGA friendly 32 bit RISC-V CPU implementation using Spinal HDL, a language very similar to Chisel. These two SoCs serve as a sort of demonstrations of extending VexRiscv into a complete system, but they do benefit from highly configurable hardware generation provided by Spinal HDL.</p>
 <h3 id="Framework-Structure-3"><a href="#Framework-Structure-3" class="headerlink" title="Framework Structure"></a>Framework Structure</h3><p>Based on Spinal HDL, the generators for SoCs are written into Scala codes, CPU configuration and SoC configuration are designed into classes with parameters. To generate SoCs, you only need to pass configurations to a generation function, then the Verilog codes will be emitted.</p>
 <h3 id="Cores-3"><a href="#Cores-3" class="headerlink" title="Cores"></a>Cores</h3><p>VexRiscv is a RISC-V CPU implemented in Spinal HDL, it has one of the highest customization ability among open-source RISC-V cores. Supported instruction sets, pipeline stages, caches, FPUs, every part of microarchitecture is configurable, leaving a huge space for users to modify depending on their own needs. The plugin feature of VexRiscv allows users to add their custom hardware directly into the CPU architecture, which could be potentially used for accelerations.</p>
 <h3 id="SoC-3"><a href="#SoC-3" class="headerlink" title="SoC"></a>SoC</h3><p>Briey and Murax serve as the demostrations of extending VexRiscv into a complete system.<br>In Briey, the interconnection between host cpu and other components is under AXI protocol, and all components are designed using Spinal HDL. Beside the configurable options of VexRiscv, Briey SoC also has a wide range of options including memory sizes and peripheral settings.<br><img src="https://github.com/SpinalHDL/VexRiscv/raw/master/assets/brieySoc.png?raw=true" alt="Briey SoC"></p>
 <p>Murax is a small SoC that can fit into a FPGA with less than 3000 logic cells. Aiming to minimize the area, Murax only keeps the basic components for a SoC to act like a microcontroller. The configurable options are not as many as Briey but still sufficient for some simple customizations.</p>
-<h3 id="Summary-2"><a href="#Summary-2" class="headerlink" title="Summary"></a>Summary</h3><p>The flexibility of VexRiscv and Spinal HDL gives a great freedom to users to design the SoC they want, but also leaves the problem of finding optimal solutions to them, which could be a challenge. But for those who are willing to explore this large design space, Briey and Murax are perfect playgrounds.</p>
+<h3 id="Summary-3"><a href="#Summary-3" class="headerlink" title="Summary"></a>Summary</h3><p>The flexibility of VexRiscv and Spinal HDL gives a great freedom to users to design the SoC they want, but also leaves the problem of finding optimal solutions to them, which could be a challenge. But for those who are willing to explore this large design space, Briey and Murax are perfect playgrounds.</p>
+<h2 id="ED"><a href="#ED" class="headerlink" title="ED"></a>ED</h2><p>That’s all guys! It’s hard to dig out every attmpts people made to build open-source SoC frameworks, but I hope this blog could open up some options  for you when you try to design your own SoC, or bravely, build your own SoC framework.</p>
+<p>Thanks for reading!</p>
 <h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p><a href="https://github.com/riscvarchive/riscv-cores-list" target="_blank" rel="noopener">riscvarchive/riscv-cores-list</a></p>
  
       <!-- reward -->

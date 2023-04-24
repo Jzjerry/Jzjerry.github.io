@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+
+
+<html lang="zh">
+
+
+<head>
+  <meta charset="utf-8" />
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    RTFSC - Test Individual Features in VexRiscv |  Through the Gate of Silver Key
+  </title>
+  <meta name="generator" content="hexo-theme-ayer">
+  
+  <link rel="shortcut icon" href="/favicon2.ico" />
+  
+  
+<link rel="stylesheet" href="/dist/main.css">
+
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css">
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+  
+  
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+  
+  
+
+  
+
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-Vexriscv-regression"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  RTFSC - Test Individual Features in VexRiscv
+</h1>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2023/04/24/Vexriscv-regression/" class="article-date">
+  <time datetime="2023-04-24T02:18:27.000Z" itemprop="datePublished">2023-04-24</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">2.1k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">12 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="RTFSC-Vexriscv-Test-Individual-Features"><a href="#RTFSC-Vexriscv-Test-Individual-Features" class="headerlink" title="RTFSC - Vexriscv: Test Individual Features"></a>RTFSC - Vexriscv: Test Individual Features</h1><h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h2><p>When reading the source code of VexRiscv, I found one of the test code for regression tests introduces the functionality of randomly generating different CPU configurations, which could possibly be used in my current project.</p>
+<a id="more"></a>
+<p>In my understanding, this functionality is kind of tricky as configurable parameters may conflict with each other, leading either not practical RTL code or compiliation errors. Therefore, it’s very interesting that how the regression tests in VexRiscv manage to do that. So here today, let’s explore the source code of <code>TestIndividualFeatures.scala</code> in VexRiscv.</p>
+<p>By the way, I’m still new to Scala so don’t mind if I make any mistake.</p>
+<h2 id="The-App"><a href="#The-App" class="headerlink" title="The App"></a>The App</h2><p>First of all, let’s start with an object of <code>TestIndividualExplore</code>, which is the main function called when running regression tests.</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">TestIndividualExplore</span> <span class="keyword">extends</span> <span class="title">App</span></span>&#123;</span><br><span class="line">  <span class="keyword">val</span> seeds = mutable.<span class="type">HashSet</span>[<span class="type">Int</span>]()</span><br><span class="line">  <span class="keyword">val</span> futures = mutable.<span class="type">ArrayBuffer</span>[<span class="type">Future</span>[<span class="type">Unit</span>]]()</span><br><span class="line">  <span class="keyword">implicit</span> <span class="keyword">val</span> ec = <span class="type">ExecutionContext</span>.fromExecutorService(</span><br><span class="line">    <span class="keyword">new</span> <span class="type">ForkJoinPool</span>(<span class="number">24</span>, <span class="type">ForkJoinPool</span>.defaultForkJoinWorkerThreadFactory, <span class="literal">null</span>, <span class="literal">true</span>)</span><br><span class="line">  )</span><br><span class="line">  <span class="keyword">for</span>(i &lt;- <span class="number">0</span> until <span class="number">1000</span>)&#123;</span><br><span class="line">    <span class="keyword">val</span> seed = <span class="type">Random</span>.nextInt(<span class="number">1000000</span>) + <span class="number">1</span></span><br><span class="line">    futures += <span class="type">Future</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (!seeds.contains(seed)) &#123;</span><br><span class="line">        <span class="keyword">val</span> cmd = <span class="string">s"make run REGRESSION_PATH=../../src/test/cpp/regression VEXRISCV_FILE=VexRiscv.v WITH_USER_IO=no REDO=10 TRACE=yes TRACE_START=100000000000ll FLOW_INFO=no STOP_ON_ERROR=no DHRYSTONE=yes COREMARK=yes THREAD_COUNT=1   IBUS=CACHED IBUS_DATA_WIDTH=128 COMPRESSED=yes DBUS=SIMPLE LRSC=yes  MUL=yes DIV=yes      FREERTOS=0 ZEPHYR=2 LINUX_REGRESSION=yes SUPERVISOR=yes  CONCURRENT_OS_EXECUTIONS=yes MMU=yes PMP=no SEED=<span class="subst">$seed</span>"</span></span><br><span class="line">        <span class="keyword">val</span> workspace = <span class="string">s"explor/seed_<span class="subst">$seed</span>"</span></span><br><span class="line">        <span class="type">FileUtils</span>.copyDirectory(<span class="keyword">new</span> <span class="type">File</span>(<span class="string">"simWorkspace/ref"</span>), <span class="keyword">new</span> <span class="type">File</span>(workspace))</span><br><span class="line">        <span class="keyword">val</span> str = <span class="type">DoCmd</span>.doCmdWithLog(cmd, workspace)</span><br><span class="line">        <span class="keyword">if</span>(!str.contains(<span class="string">"REGRESSION SUCCESS"</span>))&#123;</span><br><span class="line">          println(<span class="string">s"seed <span class="subst">$seed</span> FAILED with\n\n<span class="subst">$str</span>"</span>)</span><br><span class="line">          sys.exit(<span class="number">1</span>)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">FileUtils</span>.deleteDirectory(<span class="keyword">new</span> <span class="type">File</span>(workspace))</span><br><span class="line">        println(<span class="string">s"seed <span class="subst">$seed</span> PASSED"</span>)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  futures.foreach(<span class="type">Await</span>.result(_, <span class="type">Duration</span>.<span class="type">Inf</span>))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>There are not actually too much to talk about, the function simply copy the tests generated to a temporary directory, use <code>make run</code> to execute the tests parallelly, and then get the test result in PASS or FAIL. Maybe we can call it the backend of regression tests, it gives us a view of how the tests are run. The question comes to where do these tests come from, and the answer lies in the main class of <code>TestIndividualFeatures</code>.</p>
+<h2 id="The-Main-Class"><a href="#The-Main-Class" class="headerlink" title="The Main Class"></a>The Main Class</h2><h3 id="Environment-variables"><a href="#Environment-variables" class="headerlink" title="Environment variables"></a>Environment variables</h3><p>The main class of <code>TestIndividualFeatures</code> starts with a bunch of environment variables:</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> testCount = sys.env.getOrElse(<span class="string">"VEXRISCV_REGRESSION_CONFIG_COUNT"</span>, <span class="string">"100"</span>).toInt</span><br><span class="line">  <span class="keyword">val</span> seed = sys.env.getOrElse(<span class="string">"VEXRISCV_REGRESSION_SEED"</span>, <span class="type">Random</span>.nextLong().toString).toLong</span><br><span class="line">  <span class="keyword">val</span> testId : <span class="type">Set</span>[<span class="type">Int</span>] =  sys.env.get(<span class="string">"VEXRISCV_REGRESSION_TEST_ID"</span>) <span class="keyword">match</span> &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="type">Some</span>(x) <span class="keyword">if</span> x != <span class="string">""</span> =&gt; x.split(',').map(_.toInt).toSet</span><br><span class="line">    <span class="keyword">case</span> _ =&gt; (<span class="number">0</span> until testCount).toSet</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">val</span> rvcRate = sys.env.getOrElse(<span class="string">"VEXRISCV_REGRESSION_CONFIG_RVC_RATE"</span>, <span class="string">"0.5"</span>).toDouble</span><br><span class="line">  <span class="keyword">val</span> linuxRate = sys.env.getOrElse(<span class="string">"VEXRISCV_REGRESSION_CONFIG_LINUX_RATE"</span>, <span class="string">"0.3"</span>).toDouble</span><br><span class="line">  <span class="keyword">val</span> machineOsRate = sys.env.getOrElse(<span class="string">"VEXRISCV_REGRESSION_CONFIG_MACHINE_OS_RATE"</span>, <span class="string">"0.5"</span>).toDouble</span><br><span class="line">  <span class="keyword">val</span> secureRate = sys.env.getOrElse(<span class="string">"VEXRISCV_REGRESSION_CONFIG_SECURE_RATE"</span>, <span class="string">"0.2"</span>).toDouble</span><br><span class="line">  <span class="keyword">val</span> linuxRegression = sys.env.getOrElse(<span class="string">"VEXRISCV_REGRESSION_LINUX_REGRESSION"</span>, <span class="string">"yes"</span>)</span><br><span class="line">  <span class="keyword">val</span> coremarkRegression = sys.env.getOrElse(<span class="string">"VEXRISCV_REGRESSION_COREMARK"</span>, <span class="string">"yes"</span>)</span><br><span class="line">  <span class="keyword">val</span> zephyrCount = sys.env.getOrElse(<span class="string">"VEXRISCV_REGRESSION_ZEPHYR_COUNT"</span>, <span class="string">"4"</span>)</span><br><span class="line">  <span class="keyword">val</span> demwRate = sys.env.getOrElse(<span class="string">"VEXRISCV_REGRESSION_CONFIG_DEMW_RATE"</span>, <span class="string">"0.6"</span>).toDouble</span><br><span class="line">  <span class="keyword">val</span> demRate = sys.env.getOrElse(<span class="string">"VEXRISCV_REGRESSION_CONFIG_DEM_RATE"</span>, <span class="string">"0.5"</span>).toDouble</span><br><span class="line">  <span class="keyword">val</span> stopOnError = sys.env.getOrElse(<span class="string">"VEXRISCV_REGRESSION_STOP_ON_ERROR"</span>, <span class="string">"no"</span>)</span><br><span class="line">  <span class="keyword">val</span> lock = <span class="keyword">new</span>&#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Some of them are boolean and some are double, you can export these variables in advance to control the test process.</p>
+<h3 id="Universe-and-Dimensions"><a href="#Universe-and-Dimensions" class="headerlink" title="Universe and Dimensions"></a>Universe and Dimensions</h3><p>The next part is actually what I want to find, it setup a list of variables called <code>dimensions</code> :</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> dimensions = <span class="type">List</span>(</span><br><span class="line">    <span class="keyword">new</span> <span class="type">IBusDimension</span>(rvcRate),</span><br><span class="line">    <span class="keyword">new</span> <span class="type">DBusDimension</span>,</span><br><span class="line">    <span class="keyword">new</span> <span class="type">MulDivDimension</span>,</span><br><span class="line">    <span class="keyword">new</span> <span class="type">ShiftDimension</span>,</span><br><span class="line">    <span class="keyword">new</span> <span class="type">BranchDimension</span>,</span><br><span class="line">    <span class="keyword">new</span> <span class="type">HazardDimension</span>,</span><br><span class="line">    <span class="keyword">new</span> <span class="type">RegFileDimension</span>,</span><br><span class="line">    <span class="keyword">new</span> <span class="type">SrcDimension</span>,</span><br><span class="line">    <span class="keyword">new</span> <span class="type">CsrDimension</span>(<span class="comment">/*sys.env.getOrElse("VEXRISCV_REGRESSION_FREERTOS_COUNT", "1")*/</span> <span class="string">"0"</span>, zephyrCount, linuxRegression), <span class="comment">//Freertos old port software is broken</span></span><br><span class="line">    <span class="keyword">new</span> <span class="type">DecoderDimension</span>,</span><br><span class="line">    <span class="keyword">new</span> <span class="type">DebugDimension</span>,</span><br><span class="line">    <span class="keyword">new</span> <span class="type">MmuPmpDimension</span></span><br><span class="line">  )</span><br></pre></td></tr></table></figure>
+
+<p>In tests, the configurations of VexRiscv are divided into different dimensions as above. Theses dimensions are defined as classes originally extended from an abstract class called <code>ConfigDimension</code> :</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">ConfigUniverse</span></span></span><br><span class="line"><span class="class"></span></span><br><span class="line"><span class="class"><span class="title">abstract</span> <span class="title">class</span>  <span class="title">ConfigDimension</span>[<span class="type">T</span> &lt;: <span class="type">ConfigPosition</span>[_]](<span class="params">val name: <span class="type">String</span></span>) </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">randomPosition</span></span>(universes : <span class="type">Seq</span>[<span class="type">ConfigUniverse</span>], r : <span class="type">Random</span>) : <span class="type">T</span> = &#123;</span><br><span class="line">    <span class="keyword">val</span> ret = randomPositionImpl(universes, r)</span><br><span class="line">    ret.dimension = <span class="keyword">this</span></span><br><span class="line">    ret</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">protected</span> <span class="function"><span class="keyword">def</span> <span class="title">randomPositionImpl</span></span>(universes : <span class="type">Seq</span>[<span class="type">ConfigUniverse</span>], r : <span class="type">Random</span>) : <span class="type">T</span></span><br><span class="line">  <span class="keyword">protected</span> <span class="function"><span class="keyword">def</span> <span class="title">random</span></span>[<span class="type">X</span>](r : <span class="type">Random</span>, positions : <span class="type">List</span>[<span class="type">X</span>]) : <span class="type">X</span> = positions(r.nextInt(positions.length))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">ConfigPosition</span>[<span class="type">T</span>](<span class="params">val name: <span class="type">String</span></span>) </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">applyOn</span></span>(config: <span class="type">T</span>): <span class="type">Unit</span></span><br><span class="line">  <span class="keyword">var</span> dimension : <span class="type">ConfigDimension</span>[_] = <span class="literal">null</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">isCompatibleWith</span></span>(positions : <span class="type">Seq</span>[<span class="type">ConfigPosition</span>[<span class="type">T</span>]]) : <span class="type">Boolean</span> = <span class="literal">true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>ConfigDimension</code> includes 3 functions <code>randomPosition</code> , <code>randomPositionImpl</code> and <code>random</code> , only first one is implemented. </p>
+<p>What about <code>ConfigUniverse</code> and <code>ConfigPosition</code>? TODO</p>
+<p>These classes are then extended to <code>VexRiscvUniverse</code> , <code>VexRiscvDimension</code> and <code>VexRiscvPosition</code>:</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">VexRiscvUniverse</span> <span class="keyword">extends</span> <span class="title">ConfigUniverse</span></span></span><br><span class="line"><span class="class"></span></span><br><span class="line"><span class="class"><span class="title">abstract</span> <span class="title">class</span>  <span class="title">VexRiscvDimension</span>(<span class="params">name: <span class="type">String</span></span>) <span class="keyword">extends</span> <span class="title">ConfigDimension</span>[<span class="type">VexRiscvPosition</span>](<span class="params">name</span>)</span></span><br><span class="line"><span class="class"></span></span><br><span class="line"><span class="class"><span class="title">abstract</span> <span class="title">class</span>  <span class="title">VexRiscvPosition</span>(<span class="params">name: <span class="type">String</span></span>) <span class="keyword">extends</span> <span class="title">ConfigPosition</span>[<span class="type">VexRiscvConfig</span>](<span class="params">name</span>)</span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">testParam</span> </span>: <span class="type">String</span> = <span class="string">""</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Not much is added by this level of abstraction, I guess this is just for naming and readability.</p>
+<p>Then comes to some configuration level definations:</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">VexRiscvUniverse</span></span>&#123;</span><br><span class="line">  <span class="keyword">val</span> <span class="type">CACHE_ALL</span> = <span class="keyword">new</span> <span class="type">VexRiscvUniverse</span></span><br><span class="line">  <span class="keyword">val</span> <span class="type">CATCH_ALL</span> = <span class="keyword">new</span> <span class="type">VexRiscvUniverse</span></span><br><span class="line">  <span class="keyword">val</span> <span class="type">MMU</span> = <span class="keyword">new</span> <span class="type">VexRiscvUniverse</span></span><br><span class="line">  <span class="keyword">val</span> <span class="type">PMP</span> = <span class="keyword">new</span> <span class="type">VexRiscvUniverse</span></span><br><span class="line">  <span class="keyword">val</span> <span class="type">FORCE_MULDIV</span> = <span class="keyword">new</span> <span class="type">VexRiscvUniverse</span></span><br><span class="line">  <span class="keyword">val</span> <span class="type">SUPERVISOR</span> = <span class="keyword">new</span> <span class="type">VexRiscvUniverse</span></span><br><span class="line">  <span class="keyword">val</span> <span class="type">NO_WRITEBACK</span> = <span class="keyword">new</span> <span class="type">VexRiscvUniverse</span></span><br><span class="line">  <span class="keyword">val</span> <span class="type">NO_MEMORY</span> = <span class="keyword">new</span> <span class="type">VexRiscvUniverse</span></span><br><span class="line">  <span class="keyword">val</span> <span class="type">EXECUTE_RF</span> = <span class="keyword">new</span> <span class="type">VexRiscvUniverse</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Some configurations which can not be divided are defined here in <code>VexRiscvUniverse</code>, such as the pipeline stage configurations - <code>NO_WRITEBACK</code> and <code>NO_MEMORY</code>.</p>
+<p>After that, let’s see the first <code>VexRiscvDimension</code> we can find as an example, which is <code>ShiftDimension</code>:</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ShiftDimension</span> <span class="keyword">extends</span> <span class="title">VexRiscvDimension</span>(<span class="params">"<span class="type">Shift</span>"</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">randomPositionImpl</span></span>(universes: <span class="type">Seq</span>[<span class="type">ConfigUniverse</span>], r: <span class="type">Random</span>) = &#123;</span><br><span class="line">    <span class="keyword">var</span> l = <span class="type">List</span>(</span><br><span class="line">      <span class="keyword">new</span> <span class="type">VexRiscvPosition</span>(<span class="string">"FullEarly"</span>) &#123;</span><br><span class="line">        <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">applyOn</span></span>(config: <span class="type">VexRiscvConfig</span>): <span class="type">Unit</span> = config.plugins += <span class="keyword">new</span> <span class="type">FullBarrelShifterPlugin</span>(earlyInjection = <span class="literal">true</span>)</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="keyword">new</span> <span class="type">VexRiscvPosition</span>(<span class="string">"Light"</span>) &#123;</span><br><span class="line">        <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">applyOn</span></span>(config: <span class="type">VexRiscvConfig</span>): <span class="type">Unit</span> = config.plugins += <span class="keyword">new</span> <span class="type">LightShifterPlugin</span></span><br><span class="line">      &#125;</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(!universes.contains(<span class="type">VexRiscvUniverse</span>.<span class="type">NO_MEMORY</span>)) l = <span class="keyword">new</span> <span class="type">VexRiscvPosition</span>(<span class="string">"FullLate"</span>) &#123;</span><br><span class="line">      <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">applyOn</span></span>(config: <span class="type">VexRiscvConfig</span>): <span class="type">Unit</span> = config.plugins += <span class="keyword">new</span> <span class="type">FullBarrelShifterPlugin</span>(earlyInjection = <span class="literal">false</span>)</span><br><span class="line">    &#125; :: l</span><br><span class="line"></span><br><span class="line">    random(r, l)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>This is rather a simple one, only two or three kinds of configurations are involved here. The dimension overrides the <code>randomPositionImpl</code> , creating a list of different configurations in this dimension, and return a random one. The <code>FullLate</code> configuration fo shifter will only be included in the list if the <code>NO_MEMORY</code> in <code>VexRiscvUniverse</code> is set.</p>
+<p>Other dimensions basically follow the same format, overriding the <code>randomPositionImpl</code> function. Some positions are constrained by the settings in <code>universe</code>, making some configurations unavailable. </p>
+<p>Now let’s take a look at a more complex one - <code>IBusDimension</code>, it’s quite long so let’s read it separately:</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">IBusDimension</span>(<span class="params">rvcRate : <span class="type">Double</span></span>) <span class="keyword">extends</span> <span class="title">VexRiscvDimension</span>(<span class="params">"<span class="type">IBus</span>"</span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">randomPositionImpl</span></span>(universes: <span class="type">Seq</span>[<span class="type">ConfigUniverse</span>], r: <span class="type">Random</span>) = &#123;</span><br><span class="line">    <span class="keyword">val</span> catchAll = universes.contains(<span class="type">VexRiscvUniverse</span>.<span class="type">CATCH_ALL</span>)</span><br><span class="line">    <span class="keyword">val</span> cacheAll = universes.contains(<span class="type">VexRiscvUniverse</span>.<span class="type">CACHE_ALL</span>)</span><br></pre></td></tr></table></figure>
+
+<p>First, we get some universal settings from <code>VexRiscvUniverse</code>.</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(r.nextDouble() &lt; <span class="number">0.5</span> &amp;&amp; !cacheAll)&#123;</span><br><span class="line">     <span class="keyword">val</span> mmuConfig = <span class="keyword">if</span>(universes.contains(<span class="type">VexRiscvUniverse</span>.<span class="type">MMU</span>)) <span class="type">MmuPortConfig</span>( portTlbSize = <span class="number">4</span>) <span class="keyword">else</span> <span class="literal">null</span></span><br><span class="line"></span><br><span class="line">     <span class="keyword">val</span> latency = r.nextInt(<span class="number">5</span>) + <span class="number">1</span></span><br><span class="line">     <span class="keyword">val</span> compressed = r.nextDouble() &lt; rvcRate</span><br><span class="line">     <span class="keyword">val</span> injectorStage = r.nextBoolean() || latency == <span class="number">1</span></span><br><span class="line">     <span class="keyword">val</span> prediction = random(r, <span class="type">List</span>(<span class="type">NONE</span>, <span class="type">STATIC</span>, <span class="type">DYNAMIC</span>, <span class="type">DYNAMIC_TARGET</span>))</span><br><span class="line">     <span class="keyword">val</span> catchAll = universes.contains(<span class="type">VexRiscvUniverse</span>.<span class="type">CATCH_ALL</span>)</span><br><span class="line">     <span class="keyword">val</span> cmdForkOnSecondStage = r.nextBoolean()</span><br><span class="line">     <span class="keyword">val</span> cmdForkPersistence = r.nextBoolean()</span><br><span class="line">     <span class="keyword">new</span> <span class="type">VexRiscvPosition</span>(<span class="string">"Simple"</span> + latency + (<span class="keyword">if</span>(cmdForkOnSecondStage) <span class="string">"S2"</span> <span class="keyword">else</span> <span class="string">""</span>) + (<span class="keyword">if</span>(cmdForkPersistence) <span class="string">"P"</span> <span class="keyword">else</span> <span class="string">""</span>)  + (<span class="keyword">if</span>(injectorStage) <span class="string">"InjStage"</span> <span class="keyword">else</span> <span class="string">""</span>) + (<span class="keyword">if</span>(compressed) <span class="string">"Rvc"</span> <span class="keyword">else</span> <span class="string">""</span>) + prediction.getClass.getTypeName().replace(<span class="string">"$"</span>,<span class="string">""</span>)) <span class="keyword">with</span> <span class="type">InstructionAnticipatedPosition</span>&#123;</span><br><span class="line">       <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">testParam</span> </span>= <span class="string">"IBUS=SIMPLE"</span> + (<span class="keyword">if</span>(compressed) <span class="string">" COMPRESSED=yes"</span> <span class="keyword">else</span> <span class="string">""</span>)</span><br><span class="line">       <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">applyOn</span></span>(config: <span class="type">VexRiscvConfig</span>): <span class="type">Unit</span> = config.plugins += <span class="keyword">new</span> <span class="type">IBusSimplePlugin</span>(</span><br><span class="line">         resetVector = <span class="number">0x80000000</span>l,</span><br><span class="line">         cmdForkOnSecondStage = cmdForkOnSecondStage,</span><br><span class="line">         cmdForkPersistence = cmdForkPersistence,</span><br><span class="line">         prediction = prediction,</span><br><span class="line">         catchAccessFault = catchAll,</span><br><span class="line">         compressedGen = compressed,</span><br><span class="line">         busLatencyMin = latency,</span><br><span class="line">         injectorStage = injectorStage,</span><br><span class="line">         memoryTranslatorPortConfig = mmuConfig</span><br><span class="line">       )</span><br><span class="line">       <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">instructionAnticipatedOk</span></span>() = injectorStage</span><br><span class="line">     &#125;</span><br></pre></td></tr></table></figure>
+
+<p>Then, we get a random double to generate a 50% possbility choice, like a coin toss. If coin lies on head and we don’t set the <code>CACHE_ALL</code> setting, we generate a latency number from 1 to 6, randomly decide the use of RV32C extension based on a rate setting, and a lot of configurations based on random booleans.</p>
+<p>The else branch is pretty similar, mixed random types are used for mixed configurations.</p>
+<h3 id="Tests"><a href="#Tests" class="headerlink" title="Tests"></a>Tests</h3><p>Now let’s go back to the <code>TestIndividualFeatures</code> class, after creating the list of dimensions, the tests are going to start:</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> clockCounter = <span class="number">0</span>l</span><br><span class="line"> <span class="keyword">var</span> startAt = <span class="type">System</span>.currentTimeMillis()</span><br><span class="line"> <span class="function"><span class="keyword">def</span> <span class="title">doTest</span></span>(positionsToApply : <span class="type">List</span>[<span class="type">VexRiscvPosition</span>], prefix : <span class="type">String</span> = <span class="string">""</span>, testSeed : <span class="type">Int</span>, universes : mutable.<span class="type">HashSet</span>[<span class="type">VexRiscvUniverse</span>]): <span class="type">Unit</span> =&#123;</span><br><span class="line">   <span class="keyword">val</span> noMemory = universes.contains(<span class="type">VexRiscvUniverse</span>.<span class="type">NO_MEMORY</span>)</span><br><span class="line">   <span class="keyword">val</span> noWriteback = universes.contains(<span class="type">VexRiscvUniverse</span>.<span class="type">NO_WRITEBACK</span>)</span><br><span class="line">   <span class="keyword">val</span> name = (<span class="keyword">if</span>(noMemory) <span class="string">"noMemoryStage_"</span> <span class="keyword">else</span> <span class="string">""</span>) + (<span class="keyword">if</span>(noWriteback) <span class="string">"noWritebackStage_"</span> <span class="keyword">else</span> <span class="string">""</span>) + positionsToApply.map(d =&gt; d.dimension.name + <span class="string">"_"</span> + d.name).mkString(<span class="string">"_"</span>)</span><br><span class="line">   <span class="keyword">val</span> workspace = <span class="string">"simWorkspace"</span></span><br><span class="line">   <span class="keyword">val</span> project = <span class="string">s"<span class="subst">$workspace</span>/<span class="subst">$prefix</span>"</span></span><br><span class="line">   <span class="function"><span class="keyword">def</span> <span class="title">doCmd</span></span>(cmd: <span class="type">String</span>): <span class="type">String</span> = &#123;</span><br><span class="line">     <span class="keyword">val</span> stdOut = <span class="keyword">new</span> <span class="type">StringBuilder</span>()</span><br><span class="line">     <span class="class"><span class="keyword">class</span> <span class="title">Logger</span> <span class="keyword">extends</span> <span class="title">ProcessLogger</span> </span>&#123;</span><br><span class="line">       <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">err</span></span>(s: =&gt; <span class="type">String</span>): <span class="type">Unit</span> = &#123;</span><br><span class="line">         <span class="keyword">if</span> (!s.startsWith(<span class="string">"ar: creating "</span>)) println(s)</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">out</span></span>(s: =&gt; <span class="type">String</span>): <span class="type">Unit</span> = &#123;</span><br><span class="line">         println(s)</span><br><span class="line">         stdOut ++= s</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">buffer</span></span>[<span class="type">T</span>](f: =&gt; <span class="type">T</span>) = f</span><br><span class="line">     &#125;</span><br><span class="line">     <span class="type">Process</span>(cmd, <span class="keyword">new</span> <span class="type">File</span>(project)).!(<span class="keyword">new</span> <span class="type">Logger</span>)</span><br><span class="line">     stdOut.toString()</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>The beginning part of the <code>doTest</code> is basically creating the names, setting up the workspace and defining a command executor.</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">testMp(prefix + name) &#123;</span><br><span class="line">      println(<span class="string">"START TEST "</span> + prefix + name)</span><br><span class="line"></span><br><span class="line">      <span class="comment">//Cleanup</span></span><br><span class="line">      <span class="type">FileUtils</span>.deleteDirectory(<span class="keyword">new</span> <span class="type">File</span>(project))</span><br><span class="line">      <span class="type">FileUtils</span>.forceMkdir(<span class="keyword">new</span> <span class="type">File</span>(project))</span><br><span class="line"></span><br><span class="line">      <span class="comment">//Generate RTL</span></span><br><span class="line">      <span class="type">FileUtils</span>.deleteQuietly(<span class="keyword">new</span> <span class="type">File</span>(<span class="string">"VexRiscv.v"</span>))</span><br><span class="line">      <span class="type">SpinalConfig</span>(targetDirectory = project).generateVerilog&#123;</span><br><span class="line">        <span class="keyword">val</span> config = <span class="type">VexRiscvConfig</span>(</span><br><span class="line">          withMemoryStage = !noMemory,</span><br><span class="line">          withWriteBackStage = !noWriteback,</span><br><span class="line">          plugins = <span class="type">List</span>(</span><br><span class="line">            <span class="keyword">new</span> <span class="type">IntAluPlugin</span>,</span><br><span class="line">            <span class="keyword">new</span> <span class="type">YamlPlugin</span>(<span class="string">"cpu0.yaml"</span>)</span><br><span class="line">          )</span><br><span class="line">        )</span><br><span class="line">        <span class="keyword">for</span> (positionToApply &lt;- positionsToApply) positionToApply.applyOn(config)</span><br><span class="line">        <span class="keyword">new</span> <span class="type">VexRiscv</span>(config)</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">//Setup test</span></span><br><span class="line">      <span class="keyword">val</span> files = <span class="type">List</span>(<span class="string">"main.cpp"</span>, <span class="string">"jtag.h"</span>, <span class="string">"encoding.h"</span> ,<span class="string">"makefile"</span>, <span class="string">"dhrystoneO3.logRef"</span>, <span class="string">"dhrystoneO3C.logRef"</span>,<span class="string">"dhrystoneO3MC.logRef"</span>,<span class="string">"dhrystoneO3M.logRef"</span>)</span><br><span class="line">      files.foreach(f =&gt; <span class="type">FileUtils</span>.copyFileToDirectory(<span class="keyword">new</span> <span class="type">File</span>(<span class="string">s"src/test/cpp/regression/<span class="subst">$f</span>"</span>), <span class="keyword">new</span> <span class="type">File</span>(project)))</span><br><span class="line"></span><br><span class="line">      <span class="comment">//Test RTL</span></span><br><span class="line">      <span class="keyword">val</span> debug = <span class="literal">true</span></span><br><span class="line">      <span class="keyword">val</span> stdCmd = (<span class="string">s"make run REGRESSION_PATH=../../src/test/cpp/regression VEXRISCV_FILE=VexRiscv.v WITH_USER_IO=no REDO=10 TRACE=<span class="subst">$&#123;if(debug) "yes" else "no"&#125;</span> TRACE_START=100000000000ll FLOW_INFO=no STOP_ON_ERROR=<span class="subst">$stopOnError</span> DHRYSTONE=yes COREMARK=<span class="subst">$&#123;coremarkRegression&#125;</span> THREAD_COUNT=1 "</span>) + <span class="string">s" SEED=<span class="subst">$&#123;testSeed&#125;</span> "</span></span><br><span class="line">      <span class="keyword">val</span> testCmd = stdCmd + (positionsToApply).map(_.testParam).mkString(<span class="string">" "</span>)</span><br><span class="line">      println(testCmd)</span><br><span class="line">      <span class="keyword">val</span> str = doCmd(testCmd)</span><br><span class="line">      assert(str.contains(<span class="string">"REGRESSION SUCCESS"</span>) &amp;&amp; !str.contains(<span class="string">"Broken pipe"</span>))</span><br><span class="line">      <span class="keyword">val</span> pattern = <span class="string">"Had simulate ([0-9]+)"</span>.r</span><br><span class="line">      <span class="keyword">val</span> hit = pattern.findFirstMatchIn(str)</span><br><span class="line"></span><br><span class="line">      lock.synchronized(clockCounter += hit.get.group(<span class="number">1</span>).toLong)</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>The second part is the actual part where tests happen, it cleans up previous data, generates the RTL, setups tests files by copying from the template folder, and finally calling <code>make</code> to run the tests. The tests are executed parallelly using <code>testMP</code> .</p>
+<p>Now, the test agenda is prepared, the regression tests are starting from here:</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> rand = <span class="keyword">new</span> <span class="type">Random</span>(seed)</span><br><span class="line"></span><br><span class="line">  testMp(<span class="string">"Info"</span>)&#123;</span><br><span class="line">    println(<span class="string">s"MAIN_SEED=<span class="subst">$seed</span>"</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  println(<span class="string">s"Seed=<span class="subst">$seed</span>"</span>)</span><br><span class="line">  <span class="keyword">for</span>(i &lt;- <span class="number">0</span> until testCount)&#123;</span><br><span class="line">    <span class="keyword">var</span> positions : <span class="type">List</span>[<span class="type">VexRiscvPosition</span>] = <span class="literal">null</span></span><br><span class="line">    <span class="keyword">var</span> universe = mutable.<span class="type">HashSet</span>[<span class="type">VexRiscvUniverse</span>]()</span><br><span class="line">    <span class="keyword">if</span>(rand.nextDouble() &lt; <span class="number">0.5</span>) universe += <span class="type">VexRiscvUniverse</span>.<span class="type">EXECUTE_RF</span></span><br><span class="line">    <span class="keyword">if</span>(linuxRate &gt; rand.nextDouble()) &#123;</span><br><span class="line">      universe += <span class="type">VexRiscvUniverse</span>.<span class="type">CATCH_ALL</span></span><br><span class="line">      universe += <span class="type">VexRiscvUniverse</span>.<span class="type">MMU</span></span><br><span class="line">      universe += <span class="type">VexRiscvUniverse</span>.<span class="type">FORCE_MULDIV</span></span><br><span class="line">      universe += <span class="type">VexRiscvUniverse</span>.<span class="type">SUPERVISOR</span></span><br><span class="line">      <span class="keyword">if</span>(demwRate &lt; rand.nextDouble())&#123;</span><br><span class="line">        universe += <span class="type">VexRiscvUniverse</span>.<span class="type">NO_WRITEBACK</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (secureRate &gt; rand.nextDouble()) &#123;</span><br><span class="line">        universe += <span class="type">VexRiscvUniverse</span>.<span class="type">CACHE_ALL</span></span><br><span class="line">        universe += <span class="type">VexRiscvUniverse</span>.<span class="type">CATCH_ALL</span></span><br><span class="line">        universe += <span class="type">VexRiscvUniverse</span>.<span class="type">PMP</span></span><br><span class="line">        <span class="keyword">if</span>(demwRate &lt; rand.nextDouble())&#123;</span><br><span class="line">          universe += <span class="type">VexRiscvUniverse</span>.<span class="type">NO_WRITEBACK</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">if</span>(machineOsRate &gt; rand.nextDouble()) &#123;</span><br><span class="line">        universe += <span class="type">VexRiscvUniverse</span>.<span class="type">CATCH_ALL</span></span><br><span class="line">        <span class="keyword">if</span>(demwRate &lt; rand.nextDouble())&#123;</span><br><span class="line">          universe += <span class="type">VexRiscvUniverse</span>.<span class="type">NO_WRITEBACK</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span>(demwRate &gt; rand.nextDouble())&#123;</span><br><span class="line">      &#125;<span class="keyword">else</span> <span class="keyword">if</span>(demRate &gt; rand.nextDouble())&#123;</span><br><span class="line">        universe += <span class="type">VexRiscvUniverse</span>.<span class="type">NO_WRITEBACK</span></span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        universe += <span class="type">VexRiscvUniverse</span>.<span class="type">NO_WRITEBACK</span></span><br><span class="line">        universe += <span class="type">VexRiscvUniverse</span>.<span class="type">NO_MEMORY</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    do&#123;</span><br><span class="line">      positions = dimensions.map(d =&gt; d.randomPosition(universe.toList, rand))</span><br><span class="line">    &#125;<span class="keyword">while</span>(!positions.forall(_.isCompatibleWith(positions)))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">val</span> testSeed = rand.nextInt()</span><br><span class="line">    <span class="keyword">if</span>(testId.contains(i))</span><br><span class="line">      doTest(positions,<span class="string">"test_id_"</span> + i + <span class="string">"_"</span>, testSeed, universe)</span><br><span class="line">    <span class="type">Hack</span>.dCounter += <span class="number">1</span></span><br><span class="line">  &#125;</span><br><span class="line">  testSingleThread(<span class="string">"report"</span>)&#123;</span><br><span class="line">    <span class="keyword">val</span> time = (<span class="type">System</span>.currentTimeMillis() - startAt)*<span class="number">1e-3</span></span><br><span class="line">    <span class="keyword">val</span> clockPerSecond = (clockCounter/time*<span class="number">1e-3</span>).toLong</span><br><span class="line">    println(<span class="string">s"Duration=<span class="subst">$&#123;(time/60).toInt&#125;</span>mn clocks=<span class="subst">$&#123;(clockCounter*1e-6).toLong&#125;</span>M clockPerSecond=<span class="subst">$&#123;clockPerSecond&#125;</span>K"</span>)</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>Universal settings are all randomly generated based on the rate settings in environment variables. The <code>dimensions</code> are then generated from the <code>universe</code> and random. There is a compatibility check which I believe is used to check configuration conflicts, but there is only one implementation of this function, so I think dolu (the author of VexRiscv) is considering deprecating it. Apparently it’s more efficient when no conflicts are generated at all than conflicts are generated then aborted. </p>
+<p>Finally, the <code>doTest</code> is called for each testCount, then the test report is generated.</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p><a href="https://github.com/SpinalHDL/VexRiscv/blob/master/src/test/scala/vexriscv/TestIndividualFeatures.scala" target="_blank" rel="noopener">https://github.com/SpinalHDL/VexRiscv/blob/master/src/test/scala/vexriscv/TestIndividualFeatures.scala</a></p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://jzjerry.github.io/2023/04/24/Vexriscv-regression/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Hardware/" rel="tag">Hardware</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IC-Design/" rel="tag">IC Design</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RISC-V/" rel="tag">RISC-V</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Spinal-HDL/" rel="tag">Spinal HDL</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+    
+      <a href="/2023/03/01/SoC-review/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Open Source SoC review</div>
+      </a>
+    
+  </nav>
+
+   
+<!-- valine评论 -->
+<div id="vcomments-box">
+  <div id="vcomments"></div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js"></script>
+<script>
+  new Valine({
+    el: "#vcomments",
+    app_id: "",
+    app_key: "",
+    path: window.location.pathname,
+    avatar: "monsterid",
+    placeholder: "给我的文章加点评论吧~",
+    recordIP: true,
+  });
+  const infoEle = document.querySelector("#vcomments .info");
+  if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+    infoEle.childNodes.forEach(function (item) {
+      item.parentNode.removeChild(item);
+    });
+  }
+</script>
+<style>
+  #vcomments-box {
+    padding: 5px 30px;
+  }
+
+  @media screen and (max-width: 800px) {
+    #vcomments-box {
+      padding: 5px 0px;
+    }
+  }
+
+  #vcomments-box #vcomments {
+    background-color: #fff;
+  }
+
+  .v .vlist .vcard .vh {
+    padding-right: 20px;
+  }
+
+  .v .vlist .vcard {
+    padding-left: 10px;
+  }
+</style>
+
+ 
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2020-2023
+        <i class="ri-heart-fill heart_icon"></i> Jzjerry Jiang
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        
+        Powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+        <span class="division">|</span>
+        Theme - <a href="https://github.com/Shen-Yu/hexo-theme-ayer" target="_blank">Ayer</a>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>Visitors:<span id="busuanzi_value_site_uv"></span></s>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>Views:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+      <div class="float_btns">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+      </div>
+    </main>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/key-side.svg" alt="Through the Gate of Silver Key"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/bangumis">追番</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories/%E6%9D%82%E8%B0%88/">杂谈</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">About Me</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <script>
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        document.querySelector('.content').classList.remove('on');
+        document.querySelector('.sidebar').classList.remove('on');
+      }
+    </script>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+<!-- MathJax -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+
+
+<link rel="stylesheet" href="/css/clipboard.css">
+
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+<!-- CanvasBackground -->
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=476863&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+  </div>
+</body>
+
+</html>

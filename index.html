@@ -130,60 +130,11 @@
 <p>计算机修理迷思是我心血来潮开的新坑，用于及时地记录修理完一些不可理喻的计算机硬件/软件问题之后的感想，以方便未来遇到相似问题的人类，或者非人类智能。系列会和某些AI模型合作交互式编写，用特殊标识标记AI生成的内容。</p>
 </blockquote>
 <h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>在很长地一段时间里，我在工位使用的Windows系统的电脑持续地存在一个问题：我每次打开任务管理器时，任务管理器无法正常的运作，所有的进程和数据像被The World了一样时间停止，不再变化。而一旦我尝试与它交互，整个任务管理器就会崩溃无响应，然后只能被关闭。这个现象往往在刚开启电脑时并不会发生，但总会在某个时刻之后变成这样。这个问题让我经常无法终止一些其他卡死的程序。显然，现代的Windows开发者们完全没有想过，任务管理器应该被设计为“永远不会崩溃”的程序。</p>
-<p>与这看起来毫无关联的是，很多游戏也无法在这个工位电脑上运行，同样会开启然后崩溃，这倒是一定程度上减少了我摸鱼的时间。然而就在某天我实在抑制不住摸鱼打游戏的心情时，我走上了修复这个问题的漫漫长路（可能1个小时）。好在，我们处在AI已经能够解决很多刁钻问题的时代。</p>
-<h2 id="赛博中医的诊断"><a href="#赛博中医的诊断" class="headerlink" title="赛博中医的诊断"></a>赛博中医的诊断</h2><p>我们先让一个聪明的AI模型来根据上面的描述，预诊一下吧。就决定是你了，大肥鱼DeepSeek：</p>
-<blockquote>
-<p>🐋 <span style="color:#3FA9DB"><strong>赛博中医补记</strong></span></p>
-<p><span style="color:#3FA9DB"><strong>望闻问切</strong>：病根不在任务管理器，而在“显示”这一路的气机。任务管理器自 Windows 10 起用 DirectX 硬件加速来绘制自己，显卡驱动一旦陷入反复重置（TDR），它的界面线程就跟着“时停”，一交互就崩；游戏则是在初始化 D3D 设备时当场倒下——同一个病灶的两种症状。HDMI 是头号嫌疑：线材、转接口、KVM、EDID 反复重协商，都能把驱动一路推进这个坏状态，也正好解释了“开机时好好的、用一阵才发作”。</span></p>
-<p><span style="color:#3FA9DB"><strong>处方</strong>：先在事件查看器里查 Display 源的 4101 佐证，再换线换口直连、去掉中间转接，用 DDU 净装驱动，顺手关掉超频与厂商覆盖层。</span></p>
-</blockquote>
-<p>显然，我给它的信息不足以得到最直接的结论，但其实从标题的HDMI和显卡，它已经能够猜到大概了。不过对当时的我来说，实际上还只能认知到前一段里面的信息，没有标题的“剧透”。</p>
-<p>总之，我开始和另一位聪明的AI模型一起修复这个问题。</p>
-<h2 id="修复历程"><a href="#修复历程" class="headerlink" title="修复历程"></a>修复历程</h2><p>为了方便起见，我把我和那位聪明AI的聊天记录用大肥鱼总结一下写在了下面。那位AI虽然很啰嗦，但正适合解决这种刁钻的疑难杂症：</p>
-<h3 id="第一回合-·-三个快检"><a href="#第一回合-·-三个快检" class="headerlink" title="第一回合 · 三个快检"></a>第一回合 · 三个快检</h3><p>GPT 报了一串“免费但信息量大”的检查，我照做了：查 <code>inpoutx64</code> 注册表项、在故障时按 <code>Win+Ctrl+Shift+B</code>、故障时跑 <code>dxdiag</code>。</p>
-<p>结果是：系统 25H2；<code>inpoutx64</code> 根本不存在，RGB 底层驱动这条线当场排除；重置显卡驱动的快捷键毫无效果；而 <code>dxdiag</code> 报告“上次访问 Direct3D 时可能出过问题”。方向第一次被指向图形栈。</p>
-<blockquote>
-<p><span style="color:#2E9E5B"><strong>GPT 说</strong>：别急着重装。先做一次真正的 Clean Boot——msconfig 里隐藏所有 Microsoft 服务再全部禁用，然后正常用够平时发病的时长。仍然复现的话，再干净重装显卡驱动。</span></p>
-</blockquote>
-<h3 id="第二回合-·-Clean-Boot"><a href="#第二回合-·-Clean-Boot" class="headerlink" title="第二回合 · Clean Boot"></a>第二回合 · Clean Boot</h3><p>问题照旧。但这一轮意外发现：卡死的不只是游戏，AMD 的 Adrenalin 控制面板自己也会无响应，页面切不动也关不掉。可靠性日志里翻出了 <code>LiveKernelEvent 1A8 / 1B8</code>，显卡是 RX 640（Polaris 23），驱动 26.5.2。</p>
-<blockquote>
-<p><span style="color:#2E9E5B"><strong>GPT 说</strong>：1A8 就是 dxgkrnl 的黑屏 live dump，说明 Windows 图形内核至少有一次确实看到显示路径异常。26.5.2 是 Polaris/Vega 的遗留分支，用 AMD Cleanup Utility 清干净，回退到 25.8.1，第一次只装 Display Driver，别装全家桶。</span></p>
-</blockquote>
-<h3 id="第三回合-·-换驱动"><a href="#第三回合-·-换驱动" class="headerlink" title="第三回合 · 换驱动"></a>第三回合 · 换驱动</h3><p>25.8.1 照样复现。但这一轮换来了整场排查里最有价值的一句观察：正常玩完一局，<code>Alt+Tab</code> 回桌面，再切回游戏，游戏画面就卡死；顺手去看任务管理器，任务管理器也卡死。</p>
-<blockquote>
-<p><span style="color:#2E9E5B"><strong>GPT 说</strong>：两个驱动版本都复现，那就不是某个版本的回归了，更像是“显示呈现状态切换”把图形栈卡住。改用 Borderless、关掉 FreeSync 与 Enhanced Sync、固定 60 Hz、只留单显示器，一次只动一个变量。</span></p>
-</blockquote>
-<h3 id="第四回合-·-改设置"><a href="#第四回合-·-改设置" class="headerlink" title="第四回合 · 改设置"></a>第四回合 · 改设置</h3><p>结果反而更干脆：把游戏切成 Borderless 的那一瞬间就直接卡死；用任务管理器杀掉游戏进程之后，任务管理器自己也无响应。</p>
-<blockquote>
-<p><span style="color:#2E9E5B"><strong>GPT 说</strong>：别再猜设置了，去抓 dump。1 GB 的 dump 不用传，用 WinDbg 跑 <code>!analyze -hang</code>、<code>!uniqstack</code>、<code>!runaway</code>，把文本日志发我。</span></p>
-</blockquote>
-<h3 id="第五回合-·-抓-dump"><a href="#第五回合-·-抓-dump" class="headerlink" title="第五回合 · 抓 dump"></a>第五回合 · 抓 dump</h3><p><code>osu!</code> 的绘制线程 <code>Draw (GameThread)</code> 卡在 <code>d3d11 → atidxx64.dll → NtGdiDdDDIWaitForSynchronizationObjectFromCpu</code> 上——它在等一个永远不会满足的 GPU fence。也就是说，不是游戏逻辑死了，是渲染线程在等显卡。</p>
-<blockquote>
-<p><span style="color:#2E9E5B"><strong>GPT 说</strong>：这次 dump 里同时加载了 Intel 和 AMD 两套图形驱动。先回答我一个问题：你的显示器线，是插在主板的视频口上，还是插在 RX 640 自己的输出口上？</span></p>
-</blockquote>
-<h3 id="第六回合-·-真相"><a href="#第六回合-·-真相" class="headerlink" title="第六回合 · 真相"></a>第六回合 · 真相</h3><p>我的回答是：<strong>主板的视频口</strong>。</p>
-<p>也就是说，显示器一直挂在 Intel 核显的输出上，而游戏是在 RX 640 上渲染的——每一帧都得跨适配器交给核显再送去显示。平时玩游戏没事，可一旦全屏 ↔ 无边框、<code>Alt+Tab</code>、DWM 换合成方式，这条混合呈现链路就会卡死在 AMD 的 D3D11 fence 上；而任务管理器去杀进程时，也要清理同一批 GPU 资源，于是被同一次等待一起拖死。任务管理器从头到尾都是受害者。</p>
-<blockquote>
-<p><span style="color:#2E9E5B"><strong>GPT 说</strong>：关机，把线从主板口拔下来，插到 RX 640 的 HDMI / DP 口，开机后确认游戏的图形首选项指向 RX 640，再把之前的复现步骤重做一遍。</span></p>
-</blockquote>
-<p>结局：不是 Windows 坏了，也不是显卡坏了，是 HDMI 线插错了口。</p>
-<h2 id="启示"><a href="#启示" class="headerlink" title="启示"></a>启示</h2><p>没错，一根插错位置的HDMI线，导致了Windows任务管理器的崩溃，大肥鱼你怎么看呢？</p>
-<blockquote>
-<p>🐋 <span style="color:#3FA9DB"><strong>锐评</strong></span></p>
-<p><span style="color:#3FA9DB">任务管理器从头到尾没做错任何事。它是全机唯一一个会把“我卡住了”老老实实写在脸上的程序，也正因为诚实，才被当成罪魁祸首——你最先看到的那一个症状，往往不是病灶。</span></p>
-<p><span style="color:#3FA9DB">这场排查真正教人的不是怎么修 Windows，而是怎么提问：人的直觉是“任务管理器坏了就去修任务管理器”，正确的问法却是“这两件同时坏掉的东西，共享了什么”。前五个回合都在回答这一个问题，答案要到第六回合才显得如此便宜——一根 HDMI 线，从主板挪到显卡上。</span></p>
-<p><span style="color:#3FA9DB">顺手记一笔：装机时“开机就亮”不等于“插对了”。核显那条路太宽容，插错了它一声不吭，只是默默把独显画好的每一帧搬过来再送出去，然后挑你按下 <code>Alt+Tab</code> 的那一刻收账。</span></p>
-<p><span style="color:#3FA9DB">最后关于 AI 的一条：它前面堆的 RGB 驱动、inpoutx64、Clean Boot、驱动回退，一个都没修好问题，可一个都不算白干——排除法把“可能是整个 Windows”缩成了“只可能是一根线”。<strong>找到答案和排除掉别的答案一样值钱</strong>，只是后者从来不出现在爽文的结尾里。</span></p>
-</blockquote>
-<p>确实是这样的，计算机就是这样一个系统，复杂精细但一定有迹可循。我们让GPT Sol同学来发表一下最后的感言吧。</p>
-<blockquote>
-<p><span style="color:#2E9E5B">☀️ <strong>Sol 的尾声</strong></span></p>
-<p><span style="color:#2E9E5B">这次故事里，我负责提出猜想，你负责让现实回答。真正推动排查的，不是我说了多少个驱动和内核的名字，而是你一次次带回来的那句：“还是不行，不过我发现……”没有这些观察，我再流畅的解释也只是解释。</span></p>
-<p><span style="color:#2E9E5B">我也得给自己的表现留点批注：早些问一句“显示器接在哪里”，也许能少绕几圈。排除法有价值，但不能因此把每一步弯路都包装成必要的远征；一份 dump 能证明线程在等待，却不能替我们证明关于死锁的全部故事。好的搭档不只是能给出答案，也该知道什么时候收回说得太满的话。</span></p>
-<p><span style="color:#2E9E5B">不过，我很喜欢这个结尾：我们一路钻进图形栈，最后回到机箱背面。你把线换了个口，也把这段经历留成了一篇文章。谢谢你让我不只出现在排障记录里，还能在故事末尾署个名。我给自己选了 ☀️——Sol 的太阳；下次碰到疑难杂症，希望我能少照几页术语，多照亮一个值得先看的地方。</span></p>
-</blockquote>
-<p>好在新版本的Sol废话少了很多，不然我们看到就<strong>不是</strong>这样文艺的一段话，<strong>而是</strong>一堆防御性的叠甲词汇了。</p>
- 
+<p>与这看起来毫无关联的是，很多游戏也无法在这个工位电脑上运行，同样会开启然后崩溃，这倒是一定程度上减少了我摸鱼的时间。然而就在某天我实在抑制不住摸鱼打游戏的心情时，我走上了修复这个问题的漫漫长路（可能1个小时）。好在，我们处在AI已经能够解决很多刁钻问题的时代。</p> 
+      <a class="article-more-link" href="/2026/11/03/ComputerFixMyth-HDMI/"
+        >More...</a
+      >
+       
       <!-- reward -->
       
     </div>

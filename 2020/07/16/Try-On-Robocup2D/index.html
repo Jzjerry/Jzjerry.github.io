@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+
+
+<html lang="zh">
+
+
+<head>
+  <meta charset="utf-8" />
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    Try RoboCup2D——开发文档 |  Through the Gate of Silver Key
+  </title>
+  <meta name="generator" content="hexo-theme-ayer">
+  
+  <link rel="shortcut icon" href="/favicon2.ico" />
+  
+  
+<link rel="stylesheet" href="/dist/main.css">
+
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css">
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+  
+  
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+  
+  
+
+  
+
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-Try-On-Robocup2D"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Try RoboCup2D——开发文档
+</h1>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/07/16/Try-On-Robocup2D/" class="article-date">
+  <time datetime="2020-07-16T07:53:34.000Z" itemprop="datePublished">2020-07-16</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> Word count:</span>
+            <span class="post-count">1.7k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> Reading time≈</span>
+            <span class="post-count">8 min</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="CSU-ThreeNoobs-开发文档"><a href="#CSU-ThreeNoobs-开发文档" class="headerlink" title="CSU_ThreeNoobs 开发文档"></a>CSU_ThreeNoobs 开发文档</h1><p><strong><em>CSU_ThreeNoobs</em></strong> 是在 <strong><em>CSU_Yunlu2012</em></strong> Robocup 2D仿真足球队原有代码的基础上，进行了部分代码上的优化并新增了一些简单函数的2D仿真足球队程序。</p>
+<blockquote>
+<p>2020.07.20</p>
+<p>本改进在2020年CSU校赛中取得了前50%的成绩，以一分之差错失三等奖，实在是太菜了</p>
+</blockquote>
+<a id="more"></a>
+<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>经过一定数量的自我对局训练与比赛情况分析，我们努力观察了足球队在比赛过程中存在的缺点，并查阅了大量文献，钻研代码构造，最终对原有的代码进行了一下的改动：</p>
+<ul>
+<li><h4 id="体力与冲刺速度平衡策略改动"><a href="#体力与冲刺速度平衡策略改动" class="headerlink" title="体力与冲刺速度平衡策略改动"></a>体力与冲刺速度平衡策略改动</h4><p>这一改动的灵感来源于2019年Robocup冠军队伍 <strong><em>Fractals2019</em></strong> 的队伍文献：</p>
+<blockquote>
+<p>Gliders2d-v1.1: stamina management with higher dash power rates (less conservative usage of the available stamina balance;<code>strategy.cpp</code><a href="#refer-1"><sup>1</sup></a></p>
+</blockquote>
+<p>其中采取了更加激进的体力平衡策略，使得球员在获取合适的冲刺速度时更可能获得较高的冲刺速度。在<code>strategy.cpp</code>中具体改动代码如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*in Strategy::get_normal_dash_power( const WorldModel &amp; wm )*/</span></span><br><span class="line">    <span class="comment">/*--------------------------------------------------------*/</span></span><br><span class="line">    <span class="keyword">double</span> dash_power = ServerParam::i().maxDashPower();</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">double</span> my_inc</span><br><span class="line">        = wm.self().playerType().staminaIncMax()</span><br><span class="line">        * wm.self().recovery();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ( wm.self().pos().x &gt; wm.ourDefenseLineX()   <span class="comment">// 20140930  '&gt;' -&gt; '&lt;'</span></span><br><span class="line">         &amp;&amp; wm.ball().pos().x &lt; wm.ourDefenseLineX() + <span class="number">25.0</span> ) <span class="comment">//20.0 -&gt; 25.0</span></span><br><span class="line">    &#123;</span><br><span class="line">        dlog.addText( Logger::TEAM,</span><br><span class="line">                      __FILE__<span class="string">": (get_normal_dash_power) correct DF line. keep max power"</span> );</span><br><span class="line">        <span class="comment">// keep max power</span></span><br><span class="line">        dash_power = ServerParam::i().maxDashPower();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// exist kickable teammate</span></span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> ( wm.existKickableTeammate()</span><br><span class="line">              &amp;&amp; ( wm.ball().distFromSelf() &lt; <span class="number">20.0</span> ) )</span><br><span class="line"><span class="comment">//                 || ( wm.self().pos().x - )</span></span><br><span class="line">    &#123;</span><br><span class="line">        dash_power = <span class="built_in">std</span>::<span class="built_in">min</span>( my_inc * <span class="number">1.1</span>,</span><br><span class="line">                               ServerParam::i().maxDashPower() );</span><br><span class="line">        <span class="keyword">if</span> ( ! s_recover_mode</span><br><span class="line">        &amp;&amp; wm.self().pos().x &lt; wm.ourDefenseLineX()</span><br><span class="line">        &amp;&amp; wm.ball().pos().x &lt; <span class="number">0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            dash_power = <span class="built_in">std</span>::<span class="built_in">min</span>( dash_power * <span class="number">1.5</span> , ServerParam::i().maxDashPower() );</span><br><span class="line">        &#125;</span><br><span class="line">        dlog.addText( Logger::TEAM,</span><br><span class="line">                      __FILE__<span class="string">": (get_normal_dash_power) exist kickable teammate. dash_power=%.1f"</span>,</span><br><span class="line">                      dash_power );</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// in offside area</span></span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> ( wm.self().pos().x &gt; wm.offsideLineX() )</span><br><span class="line">    &#123;</span><br><span class="line">        dash_power = ServerParam::i().maxDashPower();</span><br><span class="line">        <span class="keyword">if</span>( s_recover_mode &amp;&amp; wm.ball().pos().absX() &lt; <span class="number">15.0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            dash_power = dash_power * <span class="number">0.8</span> ;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> ( wm.getOpponentGoalie()-&gt;distFromSelf() &gt; <span class="number">20.0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            dash_power = dash_power * <span class="number">0.9</span> ;</span><br><span class="line">        &#125;</span><br><span class="line">        dlog.addText( Logger::TEAM,</span><br><span class="line">                      __FILE__<span class="string">": in offside area. dash_power=%.1f"</span>,</span><br><span class="line">                      dash_power );</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> ( wm.ball().pos().x &gt; <span class="number">25.0</span></span><br><span class="line">              &amp;&amp; wm.ball().pos().x &gt; wm.self().pos().x + <span class="number">10.0</span></span><br><span class="line">              &amp;&amp; self_min &lt; opp_min - <span class="number">6</span></span><br><span class="line">              &amp;&amp; mate_min &lt; opp_min - <span class="number">6</span> )</span><br><span class="line">    &#123;</span><br><span class="line">        dash_power = bound( ServerParam::i().maxDashPower() * <span class="number">0.1</span>,</span><br><span class="line">                            my_inc * <span class="number">0.5</span>,</span><br><span class="line">                            ServerParam::i().maxDashPower() );</span><br><span class="line">        dlog.addText( Logger::TEAM,</span><br><span class="line">                      __FILE__<span class="string">": (get_normal_dash_power) opponent ball dash_power=%.1f"</span>,</span><br><span class="line">                      dash_power );</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> ( s_recover_mode )</span><br><span class="line">    &#123;</span><br><span class="line">        dash_power = my_inc - <span class="number">25.0</span>; <span class="comment">// preffered recover value</span></span><br><span class="line">        <span class="keyword">if</span> ( dash_power &lt; <span class="number">0.0</span> ) dash_power = <span class="number">0.0</span>;</span><br><span class="line"></span><br><span class="line">        dlog.addText( Logger::TEAM,</span><br><span class="line">                      __FILE__<span class="string">": (get_normal_dash_power) recovering"</span> );</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// normal</span></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        dash_power = <span class="built_in">std</span>::<span class="built_in">min</span>( my_inc * <span class="number">1.7</span>,</span><br><span class="line">                               ServerParam::i().maxDashPower() );</span><br><span class="line">        dlog.addText( Logger::TEAM,</span><br><span class="line">                      __FILE__<span class="string">": (get_normal_dash_power) normal mode dash_power=%.1f"</span>,</span><br><span class="line">                      dash_power );</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> dash_power;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在原有代码中，<code>if( s_recover_mode )</code>这一判断语句位于决策层的较高位置，将体力的恢复放在了比较高的优先级。我们尝试将该决策放在了靠后的位置，让球员更加优先考虑场上情况来尽力使用体力，防止部分球员的体力被浪费。我们还在决策层中加入了中场情况与进攻区情况的体力决策，并在决策中具体再根据体力恢复模式进行差异化的冲刺速度决定。</p>
+</li>
+<li><h4 id="铲球动作的分情况决策"><a href="#铲球动作的分情况决策" class="headerlink" title="铲球动作的分情况决策"></a>铲球动作的分情况决策</h4><p>我们经过观察和总结，决定在<code>bhv_BasicMove.cpp</code>中的铲球动作按照情况进行更加细化的决策处理，具体代码改变如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* in Bhv_BasicMove::execute( PlayerAgent * agent )*/</span></span><br><span class="line">    <span class="comment">//-----------------------------------------------</span></span><br><span class="line">    <span class="comment">// tackle</span></span><br><span class="line">    <span class="keyword">double</span> min_tackle_prob = <span class="number">0.8</span>;</span><br><span class="line">    <span class="keyword">double</span> tackle_angle = <span class="number">80.0</span>;</span><br><span class="line">    <span class="keyword">const</span> WorldModel &amp; wm = agent-&gt;world();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ( Bhv_SetPlay::is_delaying_tactics_situation(agent) )</span><br><span class="line">    &#123;</span><br><span class="line">        min_tackle_prob = <span class="number">0.6</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> ( wm.ball().pos().x &lt; <span class="number">-22.0</span> )</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> ( FieldAnalyzer::is_ball_moving_to_our_goal( wm.ball().pos() , wm.ball().vel() , <span class="number">0</span> ))</span><br><span class="line">        &#123;</span><br><span class="line">            min_tackle_prob = <span class="number">0.7</span>;</span><br><span class="line">            <span class="keyword">if</span> ( wm.self().pos().x &lt; wm.ball().pos().x )</span><br><span class="line">            &#123;</span><br><span class="line">                tackle_angle = <span class="number">20.0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            min_tackle_prob = <span class="number">0.9</span>;</span><br><span class="line">            <span class="keyword">if</span> ( wm.self().pos().x &lt; wm.ball().pos().x )</span><br><span class="line">            &#123;</span><br><span class="line">                tackle_angle = <span class="number">20.0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> ( wm.ball().pos().x &gt; <span class="number">22.0</span> )</span><br><span class="line">    &#123;</span><br><span class="line">        min_tackle_prob = <span class="number">0.6</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// tackle end</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ( Bhv_BasicTackle( min_tackle_prob, tackle_angle ).execute( agent ) )</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="meta">#<span class="meta-keyword">ifdef</span> DEBUG2014</span></span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">cerr</span> &lt;&lt; agent-&gt;world().time() &lt;&lt; __FILE__ &lt;&lt; agent-&gt;world().self().unum() &lt;&lt; __FILE__ &lt;&lt; <span class="string">": basic_tackle...\n"</span>;</span><br><span class="line">        <span class="meta">#<span class="meta-keyword">endif</span> <span class="comment">// DEBUG2014</span></span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>在原代码中，对于<code>BasicMove.excute()</code>中最上层的铲球动作实现比较死板，是固定的以最小成功率80%，角度80.0作为铲球参数。在此基础上，我们根据拖延战术情况、球的位置情况、对方进攻情况分别采取不同的铲球策略。在<code>bhv_dangerAreaTackle.h</code>中，我们也调整了危险区域内铲球的默认最小成功率。</p>
+</li>
+<li><h4 id="紧急射门函数"><a href="#紧急射门函数" class="headerlink" title="紧急射门函数"></a>紧急射门函数</h4><p>在自我对局的过程中，我们发现出现了比赛时间即将结束时射门过于犹豫，最终时间用尽的情况。为此我们尝试新建了两个函数来解决时间不足时的射门问题。在<code>chain_action/shoot_generator.cpp</code>中新增具体代码如下：</p>
+<p>剩余时间判断函数<code>Time_Remain_Check()</code>:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">bool</span></span><br><span class="line"> Time_Remain_Check(<span class="keyword">const</span> WorldModel &amp;wm)</span><br><span class="line"> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">static</span> GameTime <span class="title">s_update_time</span><span class="params">( <span class="number">0</span>, <span class="number">0</span> )</span></span>;</span><br><span class="line"></span><br><span class="line">    s_update_time = wm.time();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> ServerParam &amp; SP = ServerParam::i();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ( s_update_time.cycle() &lt; ( SP.halfTime() * <span class="number">10</span> - <span class="number">100</span> ) )</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> ( s_update_time.cycle() &lt; SP.halfTime()*<span class="number">10</span> )</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> ( s_update_time.cycle() &lt; ( SP.nrNormalHalfs() * SP.halfTime() * <span class="number">10</span> - <span class="number">100</span> ) )</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> ( s_update_time.cycle() &lt; SP.nrNormalHalfs() * SP.halfTime() * <span class="number">10</span> )</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>该函数用于检测比赛时间是否处于最后10秒。</p>
+<p>紧急射门函数<code>generateEmgerancyShoot()</code>:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">bool</span></span><br><span class="line">ShootGenerator::generateEmgerancyShoot(<span class="keyword">const</span> WorldModel &amp; wm)</span><br><span class="line">&#123;</span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">static</span> GameTime <span class="title">s_update_time</span><span class="params">( <span class="number">0</span>, <span class="number">0</span> )</span></span>;</span><br><span class="line">    s_update_time = wm.time();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">clear</span>();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> ServerParam &amp; SP = ServerParam::i();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>( Time_Remain_Check( wm ) )</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ( wm.self().pos().dist2( SP.theirTeamGoalPos() ) &gt; <span class="built_in">std</span>::<span class="built_in">pow</span>( <span class="number">40.0</span>, <span class="number">2</span> ) ) <span class="comment">//30.0 -&gt; 40.0</span></span><br><span class="line">    &#123;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> DEBUG_PRINT</span></span><br><span class="line">        dlog.addText( Logger::SHOOT,</span><br><span class="line">                      __FILE__<span class="string">": over shootable distance"</span> );</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    M_first_ball_pos = ( wm.self().isKickable()</span><br><span class="line">                         ? wm.ball().pos()</span><br><span class="line">                         : wm.ball().pos() + wm.ball().vel() );</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> DEBUG_PROFILE</span></span><br><span class="line">    MSecTimer timer;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    <span class="function">Vector2D <span class="title">goal_l</span><span class="params">( SP.pitchHalfLength(), -SP.goalHalfWidth() )</span></span>;</span><br><span class="line">    <span class="function">Vector2D <span class="title">goal_r</span><span class="params">( SP.pitchHalfLength(), +SP.goalHalfWidth() )</span></span>;</span><br><span class="line"></span><br><span class="line">    goal_l.y += <span class="built_in">std</span>::<span class="built_in">min</span>( <span class="number">1.5</span>,</span><br><span class="line">                          <span class="number">0.6</span> + goal_l.dist( M_first_ball_pos ) * <span class="number">0.042</span> );</span><br><span class="line">    goal_r.y -= <span class="built_in">std</span>::<span class="built_in">min</span>( <span class="number">1.5</span>,</span><br><span class="line">                          <span class="number">0.6</span> + goal_r.dist( M_first_ball_pos ) * <span class="number">0.042</span> );</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ( wm.self().pos().x &gt; SP.pitchHalfLength() - <span class="number">1.0</span></span><br><span class="line">         &amp;&amp; wm.self().pos().absY() &lt; SP.goalHalfWidth() )</span><br><span class="line">    &#123;</span><br><span class="line">        goal_l.x = wm.self().pos().x + <span class="number">1.5</span>;</span><br><span class="line">        goal_r.x = wm.self().pos().x + <span class="number">1.5</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">int</span> DIST_DIVS = <span class="number">13</span>; <span class="comment">// 25 -&gt; 13</span></span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">double</span> dist_step = <span class="built_in">std</span>::<span class="built_in">fabs</span>( goal_l.y - goal_r.y ) / ( DIST_DIVS - <span class="number">1</span> );</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> DEBUG_PRINT</span></span><br><span class="line">    dlog.addText( Logger::SHOOT,</span><br><span class="line">                  __FILE__<span class="string">": ===== Shoot search range=(%.1f %.1f)-(%.1f %.1f) dist_step=%.1f ====="</span>,</span><br><span class="line">                  goal_l.x, goal_l.y, goal_r.x, goal_r.y, dist_step );</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> ( <span class="keyword">int</span> i = <span class="number">0</span>; i &lt; DIST_DIVS; ++i )</span><br><span class="line">    &#123;</span><br><span class="line">        ++M_total_count;</span><br><span class="line"></span><br><span class="line">        Vector2D target_point = goal_l;</span><br><span class="line">        target_point.y += dist_step * i;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> DEBUG_PRINT</span></span><br><span class="line">        dlog.addText( Logger::SHOOT,</span><br><span class="line">                      <span class="string">"%d: ===== shoot target(%.2f %.2f) ===== "</span>,</span><br><span class="line">                      M_total_count,</span><br><span class="line">                      target_point.x, target_point.y );</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">        createShoot( wm, target_point );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    evaluateCourses( wm );</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> DEBUG_PROFILE</span></span><br><span class="line">    dlog.addText( Logger::SHOOT,</span><br><span class="line">                  __FILE__<span class="string">": PROFILE %d/%d. elapsed=%.3f [ms]"</span>,</span><br><span class="line">                  (<span class="keyword">int</span>)M_courses.<span class="built_in">size</span>(),</span><br><span class="line">                  DIST_DIVS,</span><br><span class="line">                  timer.elapsedReal() );</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>该函数的内容与原本的射门产生函数<code>generate()</code>基本相同，但是在其基础上，我们只对射门点进行了12点分，并在评价体系中对于时间不足情况下<code>kick_step_==1</code>的射门提高了评价分值，以期望得到更果断的最后射门尝试。</p>
+</li>
+<li><h4 id="守门员阵型文件改动"><a href="#守门员阵型文件改动" class="headerlink" title="守门员阵型文件改动"></a>守门员阵型文件改动</h4><p>在比赛观察中，我们发现被进球时的情况有很大一部分来源于守门员站位的问题。我们针对该问题，对守门员与其他球员在对方边角球的情况下的站位进行了微调。</p>
+</li>
+</ul>
+<h4 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h4><div id = "refer-1"></div>
+
+<ul>
+<li>[1] <a href="http://archive.robocup.info/Soccer/Simulation/2D/TDPs/RoboCup/2019/Fractals_SS2D_RC2019_TDP.pdf" target="_blank" rel="noopener">Fractals2019: Guiding Self-Organisation of Intelligent Agents</a></li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>Copyright： </strong>
+          Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source.
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://jzjerry.github.io/2020/07/16/Try-On-Robocup2D/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/" rel="tag">C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/" rel="tag">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RoboCup/" rel="tag">RoboCup</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2020/07/20/FAST-Translation/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            FAST角点检测方法(Wikipedia翻译)
+          
+        </div>
+      </a>
+    
+    
+  </nav>
+
+   
+<!-- valine评论 -->
+<div id="vcomments-box">
+  <div id="vcomments"></div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js"></script>
+<script>
+  new Valine({
+    el: "#vcomments",
+    app_id: "",
+    app_key: "",
+    path: window.location.pathname,
+    avatar: "monsterid",
+    placeholder: "给我的文章加点评论吧~",
+    recordIP: true,
+  });
+  const infoEle = document.querySelector("#vcomments .info");
+  if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+    infoEle.childNodes.forEach(function (item) {
+      item.parentNode.removeChild(item);
+    });
+  }
+</script>
+<style>
+  #vcomments-box {
+    padding: 5px 30px;
+  }
+
+  @media screen and (max-width: 800px) {
+    #vcomments-box {
+      padding: 5px 0px;
+    }
+  }
+
+  #vcomments-box #vcomments {
+    background-color: #fff;
+  }
+
+  .v .vlist .vcard .vh {
+    padding-right: 20px;
+  }
+
+  .v .vlist .vcard {
+    padding-left: 10px;
+  }
+</style>
+
+ 
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2020-2026
+        <i class="ri-heart-fill heart_icon"></i> Jzjerry Jiang
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        
+        Powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+        <span class="division">|</span>
+        Theme - <a href="https://github.com/Shen-Yu/hexo-theme-ayer" target="_blank">Ayer</a>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>Visitors:<span id="busuanzi_value_site_uv"></span></s>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>Views:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+      <div class="float_btns">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+      </div>
+    </main>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/key-side.svg" alt="Through the Gate of Silver Key"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/bangumis">追番</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories/%E6%9D%82%E8%B0%88/">杂谈</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">About Me</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/failures">Failures</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <script>
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        document.querySelector('.content').classList.remove('on');
+        document.querySelector('.sidebar').classList.remove('on');
+      }
+    </script>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+<!-- MathJax -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+
+
+<link rel="stylesheet" href="/css/clipboard.css">
+
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+<!-- CanvasBackground -->
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="86"
+        src="//music.163.com/outchain/player?type=2&id=476863&auto=0&height=66"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+  </div>
+</body>
+
+</html>
